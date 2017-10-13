@@ -80,18 +80,33 @@ test('GET /users/me 401', async () => {
   expect(status).toBe(401)
 })
 
-test('GET /users/:id 200', async () => {
+test('GET /users/:id 200 (admin)', async () => {
   const { status, body } = await request(app())
     .get(`/${user1.id}`)
+    .query({ access_token: adminSession })
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
   expect(body.id).toBe(user1.id)
 })
 
-test('GET /users/:id 404', async () => {
+test('GET /users/:id 404 (admin)', async () => {
   const { status } = await request(app())
     .get('/123456789098765432123456')
+    .query({ access_token: adminSession })
   expect(status).toBe(404)
+})
+
+test('GET /users/:id 401 (user)', async () => {
+  const { status } = await request(app())
+    .get(`/${user1.id}`)
+    .query({ access_token: session1 })
+  expect(status).toBe(401)
+})
+
+test('GET /users/:id 401', async () => {
+  const { status } = await request(app())
+    .get('/123456789098765432123456')
+  expect(status).toBe(401)
 })
 
 test('POST /users 201 (master)', async () => {
