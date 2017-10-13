@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "yarn lint && yarn dev",
-    "test": "jest",
+    "test": "yarn lint && jest",
     "test:unit": "yarn test \"src/**/!(index).test.js\"",
     "test:integration": "yarn test \"src/**/index.test.js\"",
     "coverage": "yarn test -- --coverage",
