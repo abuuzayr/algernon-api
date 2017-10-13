@@ -6,47 +6,47 @@ import routes, { User } from '.'
 
 const app = () => express(routes)
 
-let user1, user2, admin, session1, session2, adminSession
+let user1, user2, superAdmin, session1, session2, superAdminSession
 
 beforeEach(async () => {
   user1 = await User.create({ name: 'user', email: 'a@a.com', password: '123456' })
   user2 = await User.create({ name: 'user', email: 'b@b.com', password: '123456' })
-  admin = await User.create({ email: 'c@c.com', password: '123456', role: 'admin' })
+  superAdmin = await User.create({ email: 'c@c.com', password: '123456', role: 'super_admin' })
   session1 = signSync(user1.id)
   session2 = signSync(user2.id)
-  adminSession = signSync(admin.id)
+  superAdminSession = signSync(superAdmin.id)
 })
 
-test('GET /users 200 (admin)', async () => {
+test('GET /users 200 (super_admin)', async () => {
   const { status, body } = await request(app())
     .get('/')
-    .query({ access_token: adminSession })
+    .query({ access_token: superAdminSession })
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
 })
 
-test('GET /users?page=2&limit=1 200 (admin)', async () => {
+test('GET /users?page=2&limit=1 200 (super_admin)', async () => {
   const { status, body } = await request(app())
     .get('/')
-    .query({ access_token: adminSession, page: 2, limit: 1 })
+    .query({ access_token: superAdminSession, page: 2, limit: 1 })
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
   expect(body.length).toBe(1)
 })
 
-test('GET /users?q=user 200 (admin)', async () => {
+test('GET /users?q=user 200 (super_admin)', async () => {
   const { status, body } = await request(app())
     .get('/')
-    .query({ access_token: adminSession, q: 'user' })
+    .query({ access_token: superAdminSession, q: 'user' })
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
   expect(body.length).toBe(2)
 })
 
-test('GET /users?fields=name 200 (admin)', async () => {
+test('GET /users?fields=name 200 (super_admin)', async () => {
   const { status, body } = await request(app())
     .get('/')
-    .query({ access_token: adminSession, fields: 'name' })
+    .query({ access_token: superAdminSession, fields: 'name' })
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
   expect(Object.keys(body[0])).toEqual(['id', 'name'])
@@ -80,19 +80,19 @@ test('GET /users/me 401', async () => {
   expect(status).toBe(401)
 })
 
-test('GET /users/:id 200 (admin)', async () => {
+test('GET /users/:id 200 (super_admin)', async () => {
   const { status, body } = await request(app())
     .get(`/${user1.id}`)
-    .query({ access_token: adminSession })
+    .query({ access_token: superAdminSession })
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
   expect(body.id).toBe(user1.id)
 })
 
-test('GET /users/:id 404 (admin)', async () => {
+test('GET /users/:id 404 (super_admin)', async () => {
   const { status } = await request(app())
     .get('/123456789098765432123456')
-    .query({ access_token: adminSession })
+    .query({ access_token: superAdminSession })
   expect(status).toBe(404)
 })
 
@@ -121,7 +121,7 @@ test('POST /users 201 (master)', async () => {
 test('POST /users 201 (master)', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'user' })
+    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'store_admin' })
   expect(status).toBe(201)
   expect(typeof body).toBe('object')
   expect(body.email).toBe('d@d.com')
@@ -130,7 +130,7 @@ test('POST /users 201 (master)', async () => {
 test('POST /users 201 (master)', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'admin' })
+    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'super_admin' })
   expect(status).toBe(201)
   expect(typeof body).toBe('object')
   expect(body.email).toBe('d@d.com')
@@ -190,10 +190,10 @@ test('POST /users 400 (master) - invalid role', async () => {
   expect(body.param).toBe('role')
 })
 
-test('POST /users 401 (admin)', async () => {
+test('POST /users 401 (super_admin)', async () => {
   const { status } = await request(app())
     .post('/')
-    .send({ access_token: adminSession, email: 'd@d.com', password: '123456' })
+    .send({ access_token: superAdminSession, email: 'd@d.com', password: '123456' })
   expect(status).toBe(401)
 })
 
@@ -254,10 +254,10 @@ test('PUT /users/:id 200 (user)', async () => {
   expect(body.email).toBe('a@a.com')
 })
 
-test('PUT /users/:id 200 (admin)', async () => {
+test('PUT /users/:id 200 (super_admin)', async () => {
   const { status, body } = await request(app())
     .put(`/${user1.id}`)
-    .send({ access_token: adminSession, name: 'test' })
+    .send({ access_token: superAdminSession, name: 'test' })
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
   expect(body.name).toBe('test')
@@ -277,10 +277,10 @@ test('PUT /users/:id 401', async () => {
   expect(status).toBe(401)
 })
 
-test('PUT /users/:id 404 (admin)', async () => {
+test('PUT /users/:id 404 (super_admin)', async () => {
   const { status } = await request(app())
     .put('/123456789098765432123456')
-    .send({ access_token: adminSession, name: 'test' })
+    .send({ access_token: superAdminSession, name: 'test' })
   expect(status).toBe(404)
 })
 
@@ -375,10 +375,10 @@ test('PUT /users/:id/password 404 (user)', async () => {
   expect(status).toBe(404)
 })
 
-test('DELETE /users/:id 204 (admin)', async () => {
+test('DELETE /users/:id 204 (super_admin)', async () => {
   const { status } = await request(app())
     .delete(`/${user1.id}`)
-    .send({ access_token: adminSession })
+    .send({ access_token: superAdminSession })
   expect(status).toBe(204)
 })
 
@@ -395,9 +395,9 @@ test('DELETE /users/:id 401', async () => {
   expect(status).toBe(401)
 })
 
-test('DELETE /users/:id 404 (admin)', async () => {
+test('DELETE /users/:id 404 (super_admin)', async () => {
   const { status } = await request(app())
     .delete('/123456789098765432123456')
-    .send({ access_token: adminSession })
+    .send({ access_token: superAdminSession })
   expect(status).toBe(404)
 })
