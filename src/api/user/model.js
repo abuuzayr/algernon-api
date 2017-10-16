@@ -5,7 +5,7 @@ import mongoose, { Schema } from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import { env } from '../../config'
 
-const roles = ['super_admin', 'store_admin']
+const roles = ['user', 'admin']
 
 const userSchema = new Schema({
   email: {
@@ -32,7 +32,7 @@ const userSchema = new Schema({
   role: {
     type: String,
     enum: roles,
-    default: 'store_admin'
+    default: 'user'
   },
   picture: {
     type: String,
