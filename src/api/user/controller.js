@@ -40,9 +40,9 @@ export const update = ({ bodymen: { body }, params, user }, res, next) =>
     .then(notFound(res))
     .then((result) => {
       if (!result) return null
-      const isAdmin = user.role === 'admin'
+      const isSuperAdmin = user.role === 'super_admin'
       const isSelfUpdate = user.id === result.id
-      if (!isSelfUpdate && !isAdmin) {
+      if (!isSelfUpdate && !isSuperAdmin) {
         res.status(401).json({
           valid: false,
           message: 'You can\'t change other user\'s data'
