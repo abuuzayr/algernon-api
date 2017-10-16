@@ -15,7 +15,7 @@ beforeEach(async () => {
   })
 })
 
-test('POST /sales-channels 201 (master)', async () => {
+test('POST /sales-channels 201 (apiKey)', async () => {
   const { status, body } = await request(app())
     .post('/')
     .send({
@@ -37,7 +37,7 @@ test('POST /sales-channels 401', async () => {
   expect(status).toBe(401)
 })
 
-test('GET /sales-channels 200 (master)', async () => {
+test('GET /sales-channels 200 (apiKey)', async () => {
   const { status, body } = await request(app())
     .get('/')
     .query({ access_token: apiKey })
@@ -51,7 +51,7 @@ test('GET /sales-channels 401', async () => {
   expect(status).toBe(401)
 })
 
-test('GET /sales-channels/:id 200 (master)', async () => {
+test('GET /sales-channels/:id 200 (apiKey)', async () => {
   const { status, body } = await request(app())
     .get(`/${salesChannel.id}`)
     .query({ access_token: apiKey })
@@ -66,14 +66,14 @@ test('GET /sales-channels/:id 401', async () => {
   expect(status).toBe(401)
 })
 
-test('GET /sales-channels/:id 404 (master)', async () => {
+test('GET /sales-channels/:id 404 (apiKey)', async () => {
   const { status } = await request(app())
     .get('/123456789098765432123456')
     .query({ access_token: apiKey })
   expect(status).toBe(404)
 })
 
-test('PUT /sales-channels/:id 200 (master)', async () => {
+test('PUT /sales-channels/:id 200 (apiKey)', async () => {
   const { status, body } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
@@ -95,7 +95,7 @@ test('PUT /sales-channels/:id 401', async () => {
   expect(status).toBe(401)
 })
 
-test('PUT /sales-channels/:id 404 (master)', async () => {
+test('PUT /sales-channels/:id 404 (apiKey)', async () => {
   const { status } = await request(app())
     .put('/123456789098765432123456')
     .send({
@@ -106,7 +106,7 @@ test('PUT /sales-channels/:id 404 (master)', async () => {
   expect(status).toBe(404)
 })
 
-test('DELETE /sales-channels/:id 204 (master)', async () => {
+test('DELETE /sales-channels/:id 204 (apiKey)', async () => {
   const { status } = await request(app())
     .delete(`/${salesChannel.id}`)
     .query({ access_token: apiKey })
@@ -119,7 +119,7 @@ test('DELETE /sales-channels/:id 401', async () => {
   expect(status).toBe(401)
 })
 
-test('DELETE /sales-channels/:id 404 (master)', async () => {
+test('DELETE /sales-channels/:id 404 (apiKey)', async () => {
   const { status } = await request(app())
     .delete('/123456789098765432123456')
     .query({ access_token: apiKey })

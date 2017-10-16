@@ -7,7 +7,7 @@ import salesChannel from './sales-channel'
 const router = new Router()
 
 /**
- * @apiDefine master Master access only
+ * @apiDefine apiKey apiKey access only
  * You must pass `access_token` parameter or a Bearer Token authorization header
  * to access this endpoint.
  */
