@@ -29,7 +29,7 @@ router.get('/',
  * @api {get} /users/me Retrieve current user
  * @apiName RetrieveCurrentUser
  * @apiGroup User
- * @apiPermission user
+ * @apiPermission store_admin
  * @apiParam {String} access_token User access_token.
  * @apiSuccess {Object} user User's data.
  */
@@ -73,7 +73,7 @@ router.post('/',
  * @api {put} /users/:id Update user
  * @apiName UpdateUser
  * @apiGroup User
- * @apiPermission user
+ * @apiPermission store_admin
  * @apiParam {String} access_token User access_token.
  * @apiParam {String} [name] User's name.
  * @apiParam {String} [picture] User's picture.

@@ -6,14 +6,14 @@ import routes, { User } from '.'
 
 const app = () => express(routes)
 
-let user1, user2, admin, session1, session2, adminSession
+let storeAdmin1, storeAdmin2, admin, session1, session2, adminSession
 
 beforeEach(async () => {
-  user1 = await User.create({ name: 'user', email: 'a@a.com', password: '123456' })
-  user2 = await User.create({ name: 'user', email: 'b@b.com', password: '123456' })
+  storeAdmin1 = await User.create({ name: 'store_admin', email: 'a@a.com', password: '123456' })
+  storeAdmin2 = await User.create({ name: 'store_admin', email: 'b@b.com', password: '123456' })
   admin = await User.create({ email: 'c@c.com', password: '123456', role: 'admin' })
-  session1 = signSync(user1.id)
-  session2 = signSync(user2.id)
+  session1 = signSync(storeAdmin1.id)
+  session2 = signSync(storeAdmin2.id)
   adminSession = signSync(admin.id)
 })
 
@@ -34,10 +34,10 @@ test('GET /users?page=2&limit=1 200 (admin)', async () => {
   expect(body.length).toBe(1)
 })
 
-test('GET /users?q=user 200 (admin)', async () => {
+test('GET /users?q=store_admin 200 (admin)', async () => {
   const { status, body } = await request(app())
     .get('/')
-    .query({ access_token: adminSession, q: 'user' })
+    .query({ access_token: adminSession, q: 'store_admin' })
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
   expect(body.length).toBe(2)
@@ -52,7 +52,7 @@ test('GET /users?fields=name 200 (admin)', async () => {
   expect(Object.keys(body[0])).toEqual(['id', 'name'])
 })
 
-test('GET /users 401 (user)', async () => {
+test('GET /users 401 (store_admin)', async () => {
   const { status } = await request(app())
     .get('/')
     .query({ access_token: session1 })
@@ -65,13 +65,13 @@ test('GET /users 401', async () => {
   expect(status).toBe(401)
 })
 
-test('GET /users/me 200 (user)', async () => {
+test('GET /users/me 200 (store_admin)', async () => {
   const { status, body } = await request(app())
     .get('/me')
     .query({ access_token: session1 })
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
-  expect(body.id).toBe(user1.id)
+  expect(body.id).toBe(storeAdmin1.id)
 })
 
 test('GET /users/me 401', async () => {
@@ -82,10 +82,10 @@ test('GET /users/me 401', async () => {
 
 test('GET /users/:id 200', async () => {
   const { status, body } = await request(app())
-    .get(`/${user1.id}`)
+    .get(`/${storeAdmin1.id}`)
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
-  expect(body.id).toBe(user1.id)
+  expect(body.id).toBe(storeAdmin1.id)
 })
 
 test('GET /users/:id 404', async () => {
@@ -106,7 +106,7 @@ test('POST /users 201 (master)', async () => {
 test('POST /users 201 (master)', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'user' })
+    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'store_admin' })
   expect(status).toBe(201)
   expect(typeof body).toBe('object')
   expect(body.email).toBe('d@d.com')
@@ -182,7 +182,7 @@ test('POST /users 401 (admin)', async () => {
   expect(status).toBe(401)
 })
 
-test('POST /users 401 (user)', async () => {
+test('POST /users 401 (store_admin)', async () => {
   const { status } = await request(app())
     .post('/')
     .send({ access_token: session1, email: 'd@d.com', password: '123456' })
@@ -196,7 +196,7 @@ test('POST /users 401', async () => {
   expect(status).toBe(401)
 })
 
-test('PUT /users/me 200 (user)', async () => {
+test('PUT /users/me 200 (store_admin)', async () => {
   const { status, body } = await request(app())
     .put('/me')
     .send({ access_token: session1, name: 'test' })
@@ -205,7 +205,7 @@ test('PUT /users/me 200 (user)', async () => {
   expect(body.name).toBe('test')
 })
 
-test('PUT /users/me 200 (user)', async () => {
+test('PUT /users/me 200 (store_admin)', async () => {
   const { status, body } = await request(app())
     .put('/me')
     .send({ access_token: session1, email: 'test@test.com' })
@@ -221,18 +221,18 @@ test('PUT /users/me 401', async () => {
   expect(status).toBe(401)
 })
 
-test('PUT /users/:id 200 (user)', async () => {
+test('PUT /users/:id 200 (store_admin)', async () => {
   const { status, body } = await request(app())
-    .put(`/${user1.id}`)
+    .put(`/${storeAdmin1.id}`)
     .send({ access_token: session1, name: 'test' })
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
   expect(body.name).toBe('test')
 })
 
-test('PUT /users/:id 200 (user)', async () => {
+test('PUT /users/:id 200 (store_admin)', async () => {
   const { status, body } = await request(app())
-    .put(`/${user1.id}`)
+    .put(`/${storeAdmin1.id}`)
     .send({ access_token: session1, email: 'test@test.com' })
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
@@ -241,23 +241,23 @@ test('PUT /users/:id 200 (user)', async () => {
 
 test('PUT /users/:id 200 (admin)', async () => {
   const { status, body } = await request(app())
-    .put(`/${user1.id}`)
+    .put(`/${storeAdmin1.id}`)
     .send({ access_token: adminSession, name: 'test' })
   expect(status).toBe(200)
   expect(typeof body).toBe('object')
   expect(body.name).toBe('test')
 })
 
-test('PUT /users/:id 401 (user) - another user', async () => {
+test('PUT /users/:id 401 (store_admin) - another user', async () => {
   const { status } = await request(app())
-    .put(`/${user1.id}`)
+    .put(`/${storeAdmin1.id}`)
     .send({ access_token: session2, name: 'test' })
   expect(status).toBe(401)
 })
 
 test('PUT /users/:id 401', async () => {
   const { status } = await request(app())
-    .put(`/${user1.id}`)
+    .put(`/${storeAdmin1.id}`)
     .send({ name: 'test' })
   expect(status).toBe(401)
 })
@@ -274,7 +274,7 @@ const passwordMatch = async (password, userId) => {
   return !!await user.authenticate(password)
 }
 
-test('PUT /users/me/password 200 (user)', async () => {
+test('PUT /users/me/password 200 (store_admin)', async () => {
   const { status, body } = await request(app())
     .put('/me/password')
     .auth('a@a.com', '123456')
@@ -285,7 +285,7 @@ test('PUT /users/me/password 200 (user)', async () => {
   expect(await passwordMatch('654321', body.id)).toBe(true)
 })
 
-test('PUT /users/me/password 400 (user) - invalid password', async () => {
+test('PUT /users/me/password 400 (store_admin) - invalid password', async () => {
   const { status, body } = await request(app())
     .put('/me/password')
     .auth('a@a.com', '123456')
@@ -295,7 +295,7 @@ test('PUT /users/me/password 400 (user) - invalid password', async () => {
   expect(body.param).toBe('password')
 })
 
-test('PUT /users/me/password 401 (user) - invalid authentication method', async () => {
+test('PUT /users/me/password 401 (store_admin) - invalid authentication method', async () => {
   const { status } = await request(app())
     .put('/me/password')
     .send({ access_token: session1, password: '654321' })
@@ -309,9 +309,9 @@ test('PUT /users/me/password 401', async () => {
   expect(status).toBe(401)
 })
 
-test('PUT /users/:id/password 200 (user)', async () => {
+test('PUT /users/:id/password 200 (store_admin)', async () => {
   const { status, body } = await request(app())
-    .put(`/${user1.id}/password`)
+    .put(`/${storeAdmin1.id}/password`)
     .auth('a@a.com', '123456')
     .send({ password: '654321' })
   expect(status).toBe(200)
@@ -320,9 +320,9 @@ test('PUT /users/:id/password 200 (user)', async () => {
   expect(await passwordMatch('654321', body.id)).toBe(true)
 })
 
-test('PUT /users/:id/password 400 (user) - invalid password', async () => {
+test('PUT /users/:id/password 400 (store_admin) - invalid password', async () => {
   const { status, body } = await request(app())
-    .put(`/${user1.id}/password`)
+    .put(`/${storeAdmin1.id}/password`)
     .auth('a@a.com', '123456')
     .send({ password: '321' })
   expect(status).toBe(400)
@@ -330,29 +330,29 @@ test('PUT /users/:id/password 400 (user) - invalid password', async () => {
   expect(body.param).toBe('password')
 })
 
-test('PUT /users/:id/password 401 (user) - another user', async () => {
+test('PUT /users/:id/password 401 (store_admin) - another user', async () => {
   const { status } = await request(app())
-    .put(`/${user1.id}/password`)
+    .put(`/${storeAdmin1.id}/password`)
     .auth('b@b.com', '123456')
     .send({ password: '654321' })
   expect(status).toBe(401)
 })
 
-test('PUT /users/:id/password 401 (user) - invalid authentication method', async () => {
+test('PUT /users/:id/password 401 (store_admin) - invalid authentication method', async () => {
   const { status } = await request(app())
-    .put(`/${user1.id}/password`)
+    .put(`/${storeAdmin1.id}/password`)
     .send({ access_token: session1, password: '654321' })
   expect(status).toBe(401)
 })
 
 test('PUT /users/:id/password 401', async () => {
   const { status } = await request(app())
-    .put(`/${user1.id}/password`)
+    .put(`/${storeAdmin1.id}/password`)
     .send({ password: '654321' })
   expect(status).toBe(401)
 })
 
-test('PUT /users/:id/password 404 (user)', async () => {
+test('PUT /users/:id/password 404 (store_admin)', async () => {
   const { status } = await request(app())
     .put('/123456789098765432123456/password')
     .auth('a@a.com', '123456')
@@ -362,21 +362,21 @@ test('PUT /users/:id/password 404 (user)', async () => {
 
 test('DELETE /users/:id 204 (admin)', async () => {
   const { status } = await request(app())
-    .delete(`/${user1.id}`)
+    .delete(`/${storeAdmin1.id}`)
     .send({ access_token: adminSession })
   expect(status).toBe(204)
 })
 
-test('DELETE /users/:id 401 (user)', async () => {
+test('DELETE /users/:id 401 (store_admin)', async () => {
   const { status } = await request(app())
-    .delete(`/${user1.id}`)
+    .delete(`/${storeAdmin1.id}`)
     .send({ access_token: session1 })
   expect(status).toBe(401)
 })
 
 test('DELETE /users/:id 401', async () => {
   const { status } = await request(app())
-    .delete(`/${user1.id}`)
+    .delete(`/${storeAdmin1.id}`)
   expect(status).toBe(401)
 })
 
