@@ -1,4 +1,4 @@
-import request from 'supertest-as-promised'
+import request from 'supertest'
 import { apiKey } from '../../config'
 import express from '../../services/express'
 import routes, { SalesChannel } from '.'

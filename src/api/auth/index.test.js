@@ -1,5 +1,5 @@
 import { stub } from 'sinon'
-import request from 'supertest-as-promised'
+import request from 'supertest'
 import { apiKey } from '../../config'
 import { User } from '../user'
 import { verify } from '../../services/jwt'
