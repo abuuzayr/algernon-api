@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
-import { master } from '../../services/passport'
+import { apiKey } from '../../services/passport'
 import { create, show, update } from './controller'
 import { schema } from '../user'
 export PasswordReset, { schema } from './model'
@@ -12,14 +12,14 @@ const { email, password } = schema.tree
  * @api {post} /password-resets Send email
  * @apiName SendPasswordReset
  * @apiGroup PasswordReset
- * @apiPermission master
+ * @apiPermission apiKey
  * @apiParam {String} email Email address to receive the password reset token.
  * @apiParam {String} link Link to redirect user.
  * @apiSuccess (Success 202) 202 Accepted.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
 router.post('/',
-  master(),
+  apiKey(),
   body({ email, link: { type: String, required: true } }),
   create)
 

@@ -1,5 +1,5 @@
 import request from 'supertest-as-promised'
-import { masterKey } from '../../config'
+import { apiKey } from '../../config'
 import { signSync } from '../../services/jwt'
 import express from '../../services/express'
 import routes, { User } from '.'
@@ -94,82 +94,82 @@ test('GET /users/:id 404', async () => {
   expect(status).toBe(404)
 })
 
-test('POST /users 201 (master)', async () => {
+test('POST /users 201 (apiKey)', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123456' })
+    .send({ access_token: apiKey, email: 'd@d.com', password: '123456' })
   expect(status).toBe(201)
   expect(typeof body).toBe('object')
   expect(body.email).toBe('d@d.com')
 })
 
-test('POST /users 201 (master)', async () => {
+test('POST /users 201 (apiKey)', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'store_admin' })
+    .send({ access_token: apiKey, email: 'd@d.com', password: '123456', role: 'store_admin' })
   expect(status).toBe(201)
   expect(typeof body).toBe('object')
   expect(body.email).toBe('d@d.com')
 })
 
-test('POST /users 201 (master)', async () => {
+test('POST /users 201 (apiKey)', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'super_admin' })
+    .send({ access_token: apiKey, email: 'd@d.com', password: '123456', role: 'super_admin' })
   expect(status).toBe(201)
   expect(typeof body).toBe('object')
   expect(body.email).toBe('d@d.com')
 })
 
-test('POST /users 409 (master) - duplicated email', async () => {
+test('POST /users 409 (apiKey) - duplicated email', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'a@a.com', password: '123456' })
+    .send({ access_token: apiKey, email: 'a@a.com', password: '123456' })
   expect(status).toBe(409)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('email')
 })
 
-test('POST /users 400 (master) - invalid email', async () => {
+test('POST /users 400 (apiKey) - invalid email', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'invalid', password: '123456' })
+    .send({ access_token: apiKey, email: 'invalid', password: '123456' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('email')
 })
 
-test('POST /users 400 (master) - missing email', async () => {
+test('POST /users 400 (apiKey) - missing email', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, password: '123456' })
+    .send({ access_token: apiKey, password: '123456' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('email')
 })
 
-test('POST /users 400 (master) - invalid password', async () => {
+test('POST /users 400 (apiKey) - invalid password', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123' })
+    .send({ access_token: apiKey, email: 'd@d.com', password: '123' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('password')
 })
 
-test('POST /users 400 (master) - missing password', async () => {
+test('POST /users 400 (apiKey) - missing password', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com' })
+    .send({ access_token: apiKey, email: 'd@d.com' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('password')
 })
 
-test('POST /users 400 (master) - invalid role', async () => {
+test('POST /users 400 (apiKey) - invalid role', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'd@d.com', password: '123456', role: 'invalid' })
+    .send({ access_token: apiKey, email: 'd@d.com', password: '123456', role: 'invalid' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('role')

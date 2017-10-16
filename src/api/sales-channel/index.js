@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { middleware as query } from 'querymen'
 import { middleware as body } from 'bodymen'
-import { master } from '../../services/passport'
+import { apiKey } from '../../services/passport'
 import { create, index, show, update, destroy } from './controller'
 import { schema } from './model'
 export SalesChannel, { schema } from './model'
@@ -13,8 +13,8 @@ const { name, type, sub_domain, facebook, paypal, easy_ship, google_analytics, e
  * @api {post} /sales-channels Create sales channel
  * @apiName CreateSalesChannel
  * @apiGroup SalesChannel
- * @apiPermission master
- * @apiParam {String} access_token master access token.
+ * @apiPermission apiKey
+ * @apiParam {String} access_token apiKey access token.
  * @apiParam name Sales channel's name.
  * @apiParam type Sales channel's type.
  * @apiParam sub_domain Sales channel's sub_domain.
@@ -28,10 +28,10 @@ const { name, type, sub_domain, facebook, paypal, easy_ship, google_analytics, e
  * @apiSuccess {Object} salesChannel Sales channel's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Sales channel not found.
- * @apiError 401 master access only.
+ * @apiError 401 apiKey access only.
  */
 router.post('/',
-  master(),
+  apiKey(),
   body({ name, type, sub_domain, facebook, paypal, easy_ship, google_analytics, email_service, site_data, email_templates }),
   create)
 
@@ -39,15 +39,15 @@ router.post('/',
  * @api {get} /sales-channels Retrieve sales channels
  * @apiName RetrieveSalesChannels
  * @apiGroup SalesChannel
- * @apiPermission master
- * @apiParam {String} access_token master access token.
+ * @apiPermission apiKey
+ * @apiParam {String} access_token apiKey access token.
  * @apiUse listParams
  * @apiSuccess {Object[]} salesChannels List of sales channels.
  * @apiError {Object} 400 Some parameters may contain invalid values.
- * @apiError 401 master access only.
+ * @apiError 401 apiKey access only.
  */
 router.get('/',
-  master(),
+  apiKey(),
   query(),
   index)
 
@@ -55,23 +55,23 @@ router.get('/',
  * @api {get} /sales-channels/:id Retrieve sales channel
  * @apiName RetrieveSalesChannel
  * @apiGroup SalesChannel
- * @apiPermission master
- * @apiParam {String} access_token master access token.
+ * @apiPermission apiKey
+ * @apiParam {String} access_token apiKey access token.
  * @apiSuccess {Object} salesChannel Sales channel's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Sales channel not found.
- * @apiError 401 master access only.
+ * @apiError 401 apiKey access only.
  */
 router.get('/:id',
-  master(),
+  apiKey(),
   show)
 
 /**
  * @api {put} /sales-channels/:id Update sales channel
  * @apiName UpdateSalesChannel
  * @apiGroup SalesChannel
- * @apiPermission master
- * @apiParam {String} access_token master access token.
+ * @apiPermission apiKey
+ * @apiParam {String} access_token apiKey access token.
  * @apiParam name Sales channel's name.
  * @apiParam type Sales channel's type.
  * @apiParam sub_domain Sales channel's sub_domain.
@@ -85,10 +85,10 @@ router.get('/:id',
  * @apiSuccess {Object} salesChannel Sales channel's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Sales channel not found.
- * @apiError 401 master access only.
+ * @apiError 401 apiKey access only.
  */
 router.put('/:id',
-  master(),
+  apiKey(),
   body({ name, type, sub_domain, facebook, paypal, easy_ship, google_analytics, email_service, site_data, email_templates }),
   update)
 
@@ -96,14 +96,14 @@ router.put('/:id',
  * @api {delete} /sales-channels/:id Delete sales channel
  * @apiName DeleteSalesChannel
  * @apiGroup SalesChannel
- * @apiPermission master
- * @apiParam {String} access_token master access token.
+ * @apiPermission apiKey
+ * @apiParam {String} access_token apiKey access token.
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Sales channel not found.
- * @apiError 401 master access only.
+ * @apiError 401 apiKey access only.
  */
 router.delete('/:id',
-  master(),
+  apiKey(),
   destroy)
 
 export default router

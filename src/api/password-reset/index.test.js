@@ -1,7 +1,7 @@
 import request from 'supertest-as-promised'
 import nock from 'nock'
 import express from '../../services/express'
-import { masterKey } from '../../config'
+import { apiKey } from '../../config'
 import { User } from '../user'
 import routes, { PasswordReset } from '.'
 
@@ -19,44 +19,44 @@ afterEach(() => {
   nock.restore()
 })
 
-test('POST /password-resets 202 (master)', async () => {
+test('POST /password-resets 202 (apiKey)', async () => {
   const { status } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'a@a.com', link: 'http://example.com' })
+    .send({ access_token: apiKey, email: 'a@a.com', link: 'http://example.com' })
   expect(status).toBe(202)
 })
 
-test('POST /password-resets 400 (master) - invalid email', async () => {
+test('POST /password-resets 400 (apiKey) - invalid email', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'invalid', link: 'http://example.com' })
+    .send({ access_token: apiKey, email: 'invalid', link: 'http://example.com' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('email')
 })
 
-test('POST /password-resets 400 (master) - missing email', async () => {
+test('POST /password-resets 400 (apiKey) - missing email', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, link: 'http://example.com' })
+    .send({ access_token: apiKey, link: 'http://example.com' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('email')
 })
 
-test('POST /password-resets 400 (master) - missing link', async () => {
+test('POST /password-resets 400 (apiKey) - missing link', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'a@a.com' })
+    .send({ access_token: apiKey, email: 'a@a.com' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('link')
 })
 
-test('POST /password-resets 404 (master)', async () => {
+test('POST /password-resets 404 (apiKey)', async () => {
   const { status } = await request(app())
     .post('/')
-    .send({ access_token: masterKey, email: 'b@b.com', link: 'http://example.com' })
+    .send({ access_token: apiKey, email: 'b@b.com', link: 'http://example.com' })
   expect(status).toBe(404)
 })
 

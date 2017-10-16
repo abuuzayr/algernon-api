@@ -27,7 +27,7 @@ const config = {
     ip: process.env.IP || '0.0.0.0',
     defaultEmail: 'no-reply@api.com',
     sendgridKey: requireProcessEnv('SENDGRID_KEY'),
-    masterKey: requireProcessEnv('MASTER_KEY'),
+    apiKey: requireProcessEnv('API_KEY'),
     jwtSecret: requireProcessEnv('JWT_SECRET'),
     mongo: {
       options: {
