@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { User } from '.'
+import { User } from '..'
 
 let user
 
@@ -38,7 +38,9 @@ describe('view', () => {
     expect(view).toBeDefined()
     expect(view.id).toBe(user.id)
     expect(view.name).toBe(user.name)
+    expect(view.email).toBe(user.email)
     expect(view.picture).toBe(user.picture)
+    expect(view.createdAt).toEqual(user.createdAt)
   })
 
   it('returns full view', () => {
