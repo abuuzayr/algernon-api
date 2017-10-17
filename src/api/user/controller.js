@@ -35,14 +35,12 @@ export const create = ({ bodymen: { body } }, res, next) =>
       }
     })
 
-export const update = ({ bodymen: { body }, params, user }, res, next) =>
-  User.findById(params.id === 'me' ? user.id : params.id)
+export const updateMe = ({ bodymen: { body }, user }, res, next) =>
+  User.findById(user.id)
     .then(notFound(res))
     .then((result) => {
       if (!result) return null
-      const isSuperAdmin = user.role === 'super_admin'
-      const isSelfUpdate = user.id === result.id
-      if (!isSelfUpdate && !isSuperAdmin) {
+      if (user.id !== result.id) {
         res.status(401).json({
           valid: false,
           message: 'You can\'t change other user\'s data'
@@ -51,6 +49,14 @@ export const update = ({ bodymen: { body }, params, user }, res, next) =>
       }
       return result
     })
+    .then((user) => user ? _.merge(user, body).save() : null)
+    .then((user) => user ? user.view(true) : null)
+    .then(success(res))
+    .catch(next)
+
+export const update = ({ bodymen: { body }, params, user }, res, next) =>
+  User.findById(params.id)
+    .then(notFound(res))
     .then((user) => user ? _.merge(user, body).save() : null)
     .then((user) => user ? user.view(true) : null)
     .then(success(res))

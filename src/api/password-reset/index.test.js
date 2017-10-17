@@ -1,7 +1,6 @@
 import request from 'supertest'
 import nock from 'nock'
 import express from '../../services/express'
-import { apiKey } from '../../config'
 import { User } from '../user'
 import routes, { PasswordReset } from '.'
 
@@ -19,52 +18,45 @@ afterEach(() => {
   nock.restore()
 })
 
-test('POST /password-resets 202 (apiKey)', async () => {
-  const { status } = await request(app())
-    .post('/')
-    .send({ access_token: apiKey, email: 'a@a.com', link: 'http://example.com' })
-  expect(status).toBe(202)
-})
-
-test('POST /password-resets 400 (apiKey) - invalid email', async () => {
+test('POST /password-resets 400 - missing email', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: apiKey, email: 'invalid', link: 'http://example.com' })
+    .send({ link: 'http://example.com' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('email')
 })
 
-test('POST /password-resets 400 (apiKey) - missing email', async () => {
+test('POST /password-resets 400 - missing link', async () => {
   const { status, body } = await request(app())
     .post('/')
-    .send({ access_token: apiKey, link: 'http://example.com' })
-  expect(status).toBe(400)
-  expect(typeof body).toBe('object')
-  expect(body.param).toBe('email')
-})
-
-test('POST /password-resets 400 (apiKey) - missing link', async () => {
-  const { status, body } = await request(app())
-    .post('/')
-    .send({ access_token: apiKey, email: 'a@a.com' })
+    .send({ email: 'a@a.com' })
   expect(status).toBe(400)
   expect(typeof body).toBe('object')
   expect(body.param).toBe('link')
 })
 
-test('POST /password-resets 404 (apiKey)', async () => {
+test('POST /password-resets 404', async () => {
   const { status } = await request(app())
     .post('/')
-    .send({ access_token: apiKey, email: 'b@b.com', link: 'http://example.com' })
+    .send({ email: 'b@b.com', link: 'http://example.com' })
   expect(status).toBe(404)
 })
 
-test('POST /password-resets 401', async () => {
+test('POST /password-resets 400 - invalid email', async () => {
+  const { status, body } = await request(app())
+    .post('/')
+    .send({ email: 'invalid', link: 'http://example.com' })
+  expect(status).toBe(400)
+  expect(typeof body).toBe('object')
+  expect(body.param).toBe('email')
+})
+
+test('POST /password-resets 202', async () => {
   const { status } = await request(app())
     .post('/')
     .send({ email: 'a@a.com', link: 'http://example.com' })
-  expect(status).toBe(401)
+  expect(status).toBe(202)
 })
 
 test('GET /password-resets/:token 200', async () => {
