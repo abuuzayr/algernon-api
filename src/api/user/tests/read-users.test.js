@@ -8,9 +8,24 @@ const app = () => express(routes)
 let storeAdmin1, storeAdmin2, superAdmin, session1, superAdminSession
 
 beforeEach(async () => {
-  storeAdmin1 = await User.create({ name: 'store_admin', email: 'a@a.com', password: '123456' })
-  storeAdmin2 = await User.create({ name: 'store_admin', email: 'b@b.com', password: '123456' })
-  superAdmin = await User.create({ email: 'c@c.com', password: '123456', role: 'super_admin' })
+  storeAdmin1 = await User.create({
+    name: 'store_admin',
+    email: 'a@a.com',
+    password: '123456',
+    role: 'store_admin'
+  })
+  storeAdmin2 = await User.create({
+    name: 'store_admin2',
+    email: 'b@b.com',
+    password: '123456',
+    role: 'store_admin'
+  })
+  superAdmin = await User.create({
+    email: 'c@c.com',
+    password: '123456',
+    role: 'super_admin'
+  })
+
   session1 = signSync(storeAdmin1.id)
   superAdminSession = signSync(superAdmin.id)
 })

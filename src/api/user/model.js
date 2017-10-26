@@ -32,7 +32,7 @@ const userSchema = new Schema({
   role: {
     type: String,
     enum: roles,
-    default: 'store_admin'
+    required: true
   },
   picture: {
     type: String,
@@ -70,7 +70,7 @@ userSchema.pre('save', function (next) {
 userSchema.methods = {
   view (full) {
     let view = {}
-    let fields = ['id', 'name', 'picture', 'email', 'createdAt']
+    let fields = ['id', 'name', 'picture', 'email', 'createdAt', 'role']
 
     fields.forEach((field) => { view[field] = this[field] })
 
@@ -94,7 +94,14 @@ userSchema.statics = {
         return user.save()
       } else {
         const password = randtoken.generate(16)
-        return this.create({ services: { [service]: id }, email, password, name, picture })
+        return this.create({
+          services: { [service]: id },
+          email,
+          password,
+          name,
+          picture,
+          role: 'store_admin'
+        })
       }
     })
   }

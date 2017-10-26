@@ -1,12 +1,14 @@
+import _ from 'lodash'
 import { schema } from './model'
 
 const defaultValidator = schema.tree
 
-let updateValidator = Object.assign({}, defaultValidator)
-delete updateValidator.password
+let updateValidator = _.cloneDeep(defaultValidator)
+delete updateValidator.role.required
+delete updateValidator.email.required
+delete updateValidator.password.required
 
-let updateMeValidator = Object.assign({}, updateValidator)
-delete updateMeValidator.email.required
+let updateMeValidator = _.cloneDeep(updateValidator)
 
 export default {
   create: defaultValidator,

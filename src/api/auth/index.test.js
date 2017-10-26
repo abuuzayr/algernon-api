@@ -11,7 +11,11 @@ const app = () => express(routes)
 let user
 
 beforeEach(async () => {
-  user = await User.create({ email: 'a@a.com', password: '123456' })
+  user = await User.create({
+    email: 'a@a.com',
+    password: '123456',
+    role: 'store_admin'
+  })
 })
 
 test('POST /auth 201', async () => {

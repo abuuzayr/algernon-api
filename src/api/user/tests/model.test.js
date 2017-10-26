@@ -4,7 +4,12 @@ import { User } from '..'
 let user
 
 beforeEach(async () => {
-  user = await User.create({ name: 'user', email: 'a@a.com', password: '123456' })
+  user = await User.create({
+    name: 'user',
+    email: 'a@a.com',
+    password: '123456',
+    role: 'store_admin'
+  })
 })
 
 describe('set email', () => {

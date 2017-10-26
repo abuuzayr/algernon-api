@@ -24,7 +24,8 @@ mongoose.connect(
 
     (new User({
       email: adminEmail,
-      password: 'adminadmin'
+      password: 'adminadmin',
+      role: 'super_admin'
     })).save()
   })
 })

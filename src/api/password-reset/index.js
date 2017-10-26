@@ -1,11 +1,11 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
 import { create, show, update } from './controller'
-import { schema } from '../user'
+import { validator } from '../user'
 export PasswordReset, { schema } from './model'
 
 const router = new Router()
-const { email, password } = schema.tree
+const { email, password } = validator.create
 
 /**
  * @api {post} /password-resets Send email
