@@ -33,5 +33,12 @@ export default (routes) => {
   app.use(queryErrorHandler())
   app.use(bodyErrorHandler())
 
+  app.use((err, req, res, next) => {
+    if (env !== 'development') {
+      delete err.stack
+    }
+
+    res.status(err.StatusCode || 500).json(err)
+  })
   return app
 }
