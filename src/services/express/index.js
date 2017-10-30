@@ -34,11 +34,17 @@ export default (routes) => {
   app.use(bodyErrorHandler())
 
   app.use((err, req, res, next) => {
+    let statusCode = err.StatusCode || 500
+
     if (env !== 'development') {
       delete err.stack
     }
 
-    res.status(err.StatusCode || 500).json(err)
+    if (err.name === 'ValidationError') {
+      statusCode = 400
+    }
+
+    res.status(statusCode).json(err)
   })
   return app
 }
