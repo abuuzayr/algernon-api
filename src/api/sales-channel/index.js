@@ -30,7 +30,7 @@ const { userRef, domain, name, type, siteData, emailTemplates, easyShip, faceboo
  * @apiError 401 super_admin access only.
  */
 router.post('/',
-  token({ required: true, roles: ['super_admin'] }),
+  token({ required: true, roles: ['super_admin', 'store_admin'] }),
   body({ userRef, domain, name, type, siteData, emailTemplates, easyShip, facebook, sendGrid }),
   create)
 

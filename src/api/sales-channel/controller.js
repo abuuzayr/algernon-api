@@ -2,11 +2,19 @@ import _ from 'lodash'
 import { success, notFound } from '../../services/response/'
 import { SalesChannel } from '.'
 
-export const create = ({ bodymen: { body } }, res, next) =>
+export const create = ({ bodymen: { body }, user }, res, next) => {
+  if (user.role === 'store_admin' && user.id !== body.userRef) {
+    res.status(401).json({
+      valid: false,
+      message: 'You are not allowed to create SalesChannels for other users'
+    })
+    return
+  }
   SalesChannel.create(body)
     .then((salesChannel) => salesChannel.view(true))
     .then(success(res, 201))
     .catch(next)
+}
 
 export const index = ({ querymen: { query, select, cursor } }, res, next) =>
   SalesChannel.find(query, select, cursor)
@@ -19,15 +27,15 @@ export const show = ({ params, user }, res, next) =>
     .then(notFound(res))
     .then((result) => {
       if (!result) return null
-      if (user.role === 'super_admin') return result
-      if (user.role === 'store_admin' && result.userRef !== user.id) {
-        res.status(401).json({
-          valid: false,
-          message: 'This data does not belong to you.'
-        })
-        return null
+      if (user.role === 'super_admin' ||
+        (user.role === 'store_admin' && (result.userRef + '') === user.id)) {
+        return result
       }
-      return result
+      res.status(401).json({
+        valid: false,
+        message: 'You do not have access to this data.'
+      })
+      return null
     })
     .then((salesChannel) => salesChannel ? salesChannel.view() : null)
     .then(success(res))

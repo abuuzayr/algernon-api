@@ -8,6 +8,7 @@ const app = () => express(routes)
 
 let userSession,
   userId,
+  user2Id,
   user2Session,
   adminId,
   adminSession,
@@ -18,8 +19,9 @@ beforeEach(async () => {
   const user2 = await User.create({ email: 'b@b.com', name: 'store_admin2', password: '123456', role: 'store_admin' })
   const admin = await User.create({ email: 'c@c.com', name: 'super_admin', password: '123456', role: 'super_admin' })
   userId = user.id
+  user2Id = user2.id
   userSession = signSync(userId)
-  user2Session = signSync(user2.id)
+  user2Session = signSync(user2Id)
   adminId = admin.id
   adminSession = signSync(adminId)
   salesChannel = await SalesChannel.create({
@@ -30,7 +32,7 @@ beforeEach(async () => {
   })
 })
 
-// Create sales_channel correctly.
+// Create sales_channel correctly with super_admin.
 test('POST /sales-channels 201 (super_admin)', async () => {
   const scdomain = 'test.example.com'
   const sctype = 'ecommerce'
@@ -61,7 +63,7 @@ test('POST /sales-channels 201 (super_admin)', async () => {
   expect(body.sendGrid).toEqual('test')
 })
 
-// Attempt to create with invalid domain
+// Attempt to create with invalid domain with super_admin
 test('POST /sales-channels 400 (super_admin)', async () => {
   const scdomain = 'testexamplecom'
   const sctype = 'ecommerce'
@@ -82,7 +84,7 @@ test('POST /sales-channels 400 (super_admin)', async () => {
   expect(status).toBe(400)
 })
 
-// Attempt to create with invalid sales channel
+// Attempt to create with invalid sales channel with super_admin
 test('POST /sales-channels 400 (super_admin)', async () => {
   const scdomain = 'test.example.com'
   const sctype = 'xxx'
@@ -103,10 +105,10 @@ test('POST /sales-channels 400 (super_admin)', async () => {
   expect(status).toBe(400)
 })
 
-// Attempt to create with invalid userref
+// Attempt to create with invalid userref with super_admin
 test('POST /sales-channels 400 (super_admin)', async () => {
   const scdomain = 'test.example.com'
-  const sctype = 'xxx'
+  const sctype = 'ecommerce'
   const { status } = await request(app())
     .post('/')
     .send({
@@ -124,7 +126,81 @@ test('POST /sales-channels 400 (super_admin)', async () => {
   expect(status).toBe(400)
 })
 
-// store_admin are not allowed to create sales channel
+// Create sales_channel correctly with store_admin.
+test('POST /sales-channels 201 (store_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
+  const { status, body } = await request(app())
+    .post('/')
+    .send({
+      access_token: userSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(201)
+  expect(typeof body).toEqual('object')
+  expect(body.userRef).toEqual(userId)
+  expect(body.domain).toEqual(scdomain)
+  expect(body.name).toEqual('test')
+  expect(body.type).toEqual(sctype)
+  expect(body.siteData).toEqual('test')
+  expect(body.emailTemplates).toEqual('test')
+  expect(body.easyShip).toEqual('test')
+  expect(body.facebook).toEqual('test')
+  expect(body.sendGrid).toEqual('test')
+})
+
+// Attempt to create with invalid domain with store_admin
+test('POST /sales-channels 400 (store_admin)', async () => {
+  const scdomain = 'testexamplecom'
+  const sctype = 'ecommerce'
+  const { status } = await request(app())
+    .post('/')
+    .send({
+      access_token: userSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// Attempt to create with invalid sales channel with store_admin
+test('POST /sales-channels 400 (super_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'xxx'
+  const { status } = await request(app())
+    .post('/')
+    .send({
+      access_token: userSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// Attempt to create userref thats not the same as my store_admin's id
+// (super_admin's id)
 test('POST /sales-channels 401 (store_admin)', async () => {
   const scdomain = 'test.example.com'
   const sctype = 'ecommerce'
@@ -132,7 +208,29 @@ test('POST /sales-channels 401 (store_admin)', async () => {
     .post('/')
     .send({
       access_token: userSession,
-      userRef: userId,
+      userRef: adminId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(401)
+})
+
+// Attempt to create userref thats not the same as my store_admin's id
+// (another store_admin's id)
+test('POST /sales-channels 401 (store_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
+  const { status } = await request(app())
+    .post('/')
+    .send({
+      access_token: userSession,
+      userRef: user2Id,
       domain: scdomain,
       name: 'test',
       type: sctype,
