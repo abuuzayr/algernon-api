@@ -126,6 +126,8 @@ test('POST /sales-channels 400 (super_admin)', async () => {
   expect(status).toBe(400)
 })
 
+// TODO: more restrictive acl for store_admin. Eg, Limiting number of
+// stores for example.
 // Create sales_channel correctly with store_admin.
 test('POST /sales-channels 201 (store_admin)', async () => {
   const scdomain = 'test.example.com'
