@@ -46,7 +46,7 @@ router.post('/',
  * @apiError 401 super_admin access only.
  */
 router.get('/',
-  token({ required: true, roles: ['super_admin'] }),
+  token({ required: true, roles: ['super_admin', 'store_admin'] }),
   query(),
   index)
 

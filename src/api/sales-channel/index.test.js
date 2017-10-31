@@ -26,7 +26,7 @@ beforeEach(async () => {
   adminSession = signSync(adminId)
   salesChannel = await SalesChannel.create({
     userRef: userId,
-    domain: 'sadmin1.example.com',
+    domain: 'storeadmin.example.com',
     name: 'test',
     type: 'ecommerce'
   })
@@ -265,7 +265,7 @@ test('POST /sales-channels 401', async () => {
   expect(status).toBe(401)
 })
 
-// Able to get list of sales channels
+// Able to get list of sales channels as super_admin
 test('GET /sales-channels 200 (super_admin)', async () => {
   const { status, body } = await request(app())
     .get('/')
@@ -274,12 +274,29 @@ test('GET /sales-channels 200 (super_admin)', async () => {
   expect(Array.isArray(body)).toBe(true)
 })
 
-// Unable to get list of sales channel as store_admin
-test('GET /sales-channels 401 (store_admin)', async () => {
-  const { status } = await request(app())
+// Able to get list of sales channel as store_admin only for
+// his sales channels.
+test('GET /sales-channels 200 (store_admin)', async () => {
+  await SalesChannel.create({
+    userRef: userId,
+    domain: 'storeadmin1.example.com',
+    name: 'test',
+    type: 'ecommerce'
+  })
+  await SalesChannel.create({
+    userRef: user2Id,
+    domain: 'storeadmin2.example.com',
+    name: 'test',
+    type: 'ecommerce'
+  })
+  const { status, body } = await request(app())
     .get('/')
     .query({ access_token: userSession })
-  expect(status).toBe(401)
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+  expect(body.reduce((reduced, value) => {
+    return reduced || value.userRef === userId
+  }, true)).toBe(true)
 })
 
 // Unable to get list of sales channel as public

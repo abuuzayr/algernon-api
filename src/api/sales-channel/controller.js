@@ -16,11 +16,13 @@ export const create = ({ bodymen: { body }, user }, res, next) => {
     .catch(next)
 }
 
-export const index = ({ querymen: { query, select, cursor } }, res, next) =>
+export const index = ({ querymen: { query, select, cursor }, user }, res, next) => {
   SalesChannel.find(query, select, cursor)
+    .then((salesChannels) => salesChannels.filter((sc) => sc.userRef + '' === user.id))
     .then((salesChannels) => salesChannels.map((salesChannel) => salesChannel.view()))
     .then(success(res))
     .catch(next)
+}
 
 export const show = ({ params, user }, res, next) =>
   SalesChannel.findById(params.id)
