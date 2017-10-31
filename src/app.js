@@ -15,7 +15,7 @@ const p = mongoose.connect(
   { useMongoClient: true, promiseLibrary: global.Promise }
 )
 
-if (env !== 'production') {
+if (env === 'development') {
   p.then(function () {
     const adminEmail = 'super_admin@example.com'
     const storeAdmin1Email = 'store_admin1@example.com'
