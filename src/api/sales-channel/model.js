@@ -3,10 +3,10 @@ import validate from 'mongoose-validator'
 import v from './validator'
 import { User } from '../user'
 
+// TODO: make use of discriminator schemas (mongoose) when there
+// are other SC types
 export const salesChannelTypes = [
-  'ecommerce',
-  'pos',
-  'marketplace'
+  'ecommerce'
 ]
 
 const salesChannelSchema = new Schema({
