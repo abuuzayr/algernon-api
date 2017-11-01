@@ -9,7 +9,6 @@ export const create = ({ bodymen: { body }, user }, res, next) => {
       valid: false,
       message: msg
     })
-    return Promise.reject(new Error(msg))
   }
   return SalesChannel.create(body)
     .then((salesChannel) => salesChannel.view(true))
@@ -66,6 +65,7 @@ export const update = ({ bodymen: { body }, params, user }, res, next) =>
           })
           return null
         }
+        return result
       }
       res.status(401).json({
         valid: false,
