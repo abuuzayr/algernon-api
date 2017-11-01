@@ -3,15 +3,15 @@ import { middleware as query } from 'querymen'
 import { middleware as body } from 'bodymen'
 import { token } from '../../services/passport'
 import { create, index, show, update, destroy } from './controller'
-import { schema } from './model'
+import v from './validator'
+export validator from './validator'
 export SalesChannel, { schema } from './model'
 
 const router = new Router()
-const { userRef, domain, name, type, siteData, emailTemplates, easyShip, facebook, sendGrid } = schema.tree
 
 router.post('/',
   token({ required: true, roles: ['super_admin', 'store_admin'] }),
-  body({ userRef, domain, name, type, siteData, emailTemplates, easyShip, facebook, sendGrid }),
+  body(v.create),
   create)
 
 router.get('/',
@@ -24,12 +24,12 @@ router.get('/:id',
   show)
 
 router.put('/:id',
-  token({ required: true, roles: ['super_admin'] }),
-  body({ userRef, domain, name, type, siteData, emailTemplates, easyShip, facebook, sendGrid }),
+  token({ required: true, roles: ['super_admin', 'store_admin'] }),
+  body(v.update),
   update)
 
 router.delete('/:id',
-  token({ required: true, roles: ['super_admin'] }),
+  token({ required: true, roles: ['super_admin', 'store_admin'] }),
   destroy)
 
 export default router

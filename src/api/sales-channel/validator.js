@@ -1,11 +1,15 @@
-import { salesChannelTypes } from './model'
+import _ from 'lodash'
+import { schema } from './model'
+
+const defaultValidator = schema.tree
+
+let updateValidator = _.cloneDeep(defaultValidator)
+delete updateValidator.name.required
+delete updateValidator.domain.required
+delete updateValidator.userRef.required
+delete updateValidator.type.required
 
 export default {
-  validSalesChannelType: {
-    validator (v) {
-      if (salesChannelTypes.indexOf(v) > -1) return false
-      return true
-    },
-    message: 'Not a valid SalesChannel'
-  }
+  create: defaultValidator,
+  update: updateValidator
 }

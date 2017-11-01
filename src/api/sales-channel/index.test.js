@@ -338,19 +338,31 @@ test('GET /sales-channels/:id 401', async () => {
   expect(status).toBe(401)
 })
 
-/*
-
-test('PUT /sales-channels/:id 200 (admin)', async () => {
+// Able to modify sales channel by id as a super_admin
+test('PUT /sales-channels/:id 200 (super_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
   const { status, body } = await request(app())
     .put(`/${salesChannel.id}`)
-    .send({ access_token: adminSession, userRef: 'test', domain: 'test', name: 'test', type: 'test', siteData: 'test', emailTemplates: 'test', easyShip: 'test', facebook: 'test', sendGrid: 'test' })
+    .send({
+      access_token: adminSession,
+      userRef: user2Id,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
   expect(body.id).toEqual(salesChannel.id)
-  expect(body.userRef).toEqual('test')
-  expect(body.domain).toEqual('test')
+  expect(body.userRef).toEqual(user2Id)
+  expect(body.domain).toEqual(scdomain)
   expect(body.name).toEqual('test')
-  expect(body.type).toEqual('test')
+  expect(body.type).toEqual(sctype)
   expect(body.siteData).toEqual('test')
   expect(body.emailTemplates).toEqual('test')
   expect(body.easyShip).toEqual('test')
@@ -358,50 +370,281 @@ test('PUT /sales-channels/:id 200 (admin)', async () => {
   expect(body.sendGrid).toEqual('test')
 })
 
-test('PUT /sales-channels/:id 401 (user)', async () => {
+// Cannot modify saleschannel by id as a super_admin (invalid domain)
+test('PUT /sales-channels/:id 400 (super_admin)', async () => {
+  const scdomain = 'testexamplecom'
+  const sctype = 'ecommerce'
   const { status } = await request(app())
     .put(`/${salesChannel.id}`)
-    .send({ access_token: userSession })
+    .send({
+      access_token: adminSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// Cannot modify saleschannel by id as a super_admin (invalid sctype)
+test('PUT /sales-channels/:id 400 (super_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommercess'
+  const { status } = await request(app())
+    .put(`/${salesChannel.id}`)
+    .send({
+      access_token: adminSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// TODO: to test to modify the sctype fields. Not testable
+// as there is only 1 sctype now.
+
+// Cannot modify saleschannel by id as a super_admin
+// (invalid sctype)
+test('PUT /sales-channels/:id 400 (super_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommercesss'
+  const { status } = await request(app())
+    .put(`/${salesChannel.id}`)
+    .send({
+      access_token: adminSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// Cannot modify saleschannel by id as a super_admin (invalid userRef)
+test('PUT /sales-channels/:id 400 (super_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
+  const { status } = await request(app())
+    .put(`/${salesChannel.id}`)
+    .send({
+      access_token: adminSession,
+      userRef: '59f06076fe0ea41a2ae04536',
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// Able to modify sales channel by id as a store_admin
+// (my own sales channels only)
+test('PUT /sales-channels/:id 200 (store_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
+  const { status, body } = await request(app())
+    .put(`/${salesChannel.id}`)
+    .send({
+      access_token: userSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(200)
+  expect(typeof body).toEqual('object')
+  expect(body.id).toEqual(salesChannel.id)
+  expect(body.userRef).toEqual(userId)
+  expect(body.domain).toEqual(scdomain)
+  expect(body.name).toEqual('test')
+  expect(body.type).toEqual(sctype)
+  expect(body.siteData).toEqual('test')
+  expect(body.emailTemplates).toEqual('test')
+  expect(body.easyShip).toEqual('test')
+  expect(body.facebook).toEqual('test')
+  expect(body.sendGrid).toEqual('test')
+})
+
+// Cannot modify saleschannel by id as a store_admin (invalid domain)
+test('PUT /sales-channels/:id 200 (store_admin)', async () => {
+  const scdomain = 'testexamplecom'
+  const sctype = 'ecommerce'
+  const { status } = await request(app())
+    .put(`/${salesChannel.id}`)
+    .send({
+      access_token: userSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// Cannot modify saleschannel by id as a store_admin
+// (invalid sctype)
+test('PUT /sales-channels/:id 400 (store_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommercess'
+  const { status } = await request(app())
+    .put(`/${salesChannel.id}`)
+    .send({
+      access_token: userSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(400)
+})
+
+// Cannot modify saleschannel by id as a store_admin
+// (not allowed to write to userref)
+test('PUT /sales-channels/:id 401 (store_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
+  const { status } = await request(app())
+    .put(`/${salesChannel.id}`)
+    .send({
+      access_token: userSession,
+      userRef: user2Id,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
   expect(status).toBe(401)
 })
 
+// Cannot modify sc by id as public user
 test('PUT /sales-channels/:id 401', async () => {
   const { status } = await request(app())
     .put(`/${salesChannel.id}`)
   expect(status).toBe(401)
 })
 
-test('PUT /sales-channels/:id 404 (admin)', async () => {
+// Cannot modify sc by non existent id (super_admin)
+test('PUT /sales-channels/:id 404 (super_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
   const { status } = await request(app())
     .put('/123456789098765432123456')
-    .send({ access_token: adminSession, userRef: 'test', domain: 'test', name: 'test', type: 'test', siteData: 'test', emailTemplates: 'test', easyShip: 'test', facebook: 'test', sendGrid: 'test' })
+    .send({
+      access_token: adminSession,
+      userRef: user2Id,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
   expect(status).toBe(404)
 })
 
-test('DELETE /sales-channels/:id 204 (admin)', async () => {
+// Cannot modify sc by non existent id (store_admin)
+test('PUT /sales-channels/:id 404 (store_admin)', async () => {
+  const scdomain = 'test.example.com'
+  const sctype = 'ecommerce'
   const { status } = await request(app())
-    .delete(`/${salesChannel.id}`)
-    .query({ access_token: adminSession })
+    .put('/123456789098765432123456')
+    .send({
+      access_token: adminSession,
+      userRef: userId,
+      domain: scdomain,
+      name: 'test',
+      type: sctype,
+      siteData: 'test',
+      emailTemplates: 'test',
+      easyShip: 'test',
+      facebook: 'test',
+      sendGrid: 'test'
+    })
+  expect(status).toBe(404)
+})
+
+// Able to delete sc by id by super_admin
+test('DELETE /sales-channels/:id 204 (super_admin)', async () => {
+  const { status } = await request(app())
+    .delete(`/${salesChannel.id}`).query({ access_token: adminSession })
   expect(status).toBe(204)
 })
 
-test('DELETE /sales-channels/:id 401 (user)', async () => {
+// Able to delete sc by id by store_admin
+test('DELETE /sales-channels/:id 204 (store_admin)', async () => {
   const { status } = await request(app())
-    .delete(`/${salesChannel.id}`)
-    .query({ access_token: userSession })
+    .delete(`/${salesChannel.id}`).query({ access_token: userSession })
+  expect(status).toBe(204)
+})
+
+// Not able to delete sc by id by store_admin if sc does not belongs to me
+test('DELETE /sales-channels/:id 401 (store_admin)', async () => {
+  const { status } = await request(app())
+    .delete(`/${salesChannel.id}`).query({ access_token: user2Session })
   expect(status).toBe(401)
 })
 
+// Not able to delete sc by id by public user
 test('DELETE /sales-channels/:id 401', async () => {
   const { status } = await request(app())
     .delete(`/${salesChannel.id}`)
   expect(status).toBe(401)
 })
 
-test('DELETE /sales-channels/:id 404 (admin)', async () => {
+// Not able to delete non-existent sc (as super_admin)
+test('DELETE /sales-channels/:id 404 (super_admin)', async () => {
   const { status } = await request(app())
     .delete('/123456789098765432123456')
     .query({ access_token: adminSession })
   expect(status).toBe(404)
 })
-*/
+
+// Not able to delete non-existent sc (as store_admin)
+test('DELETE /sales-channels/:id 401 (store_admin)', async () => {
+  const { status } = await request(app())
+    .delete('/123456789098765432123456')
+    .query({ access_token: userId })
+  expect(status).toBe(401)
+})

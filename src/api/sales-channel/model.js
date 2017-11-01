@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
 import validate from 'mongoose-validator'
-import v from './validator'
 import { User } from '../user'
 
 // TODO: make use of discriminator schemas (mongoose) when there
@@ -36,8 +35,16 @@ const salesChannelSchema = new Schema({
   domain: {
     type: String,
     unique: true,
+    // TODO: domain is required until we have multiple SCtypes
+    required: true,
     validate: [
-      validate(v.validSalesChannelType),
+      {
+        validator (v) {
+          if (salesChannelTypes.indexOf(v) > -1) return false
+          return true
+        },
+        message: 'Not a valid SalesChannel'
+      },
       validate({
         validator: 'isFQDN',
         message: 'Is not a FQDN'
