@@ -40,7 +40,7 @@
     "nodemon": "^1.10.2",
     "opn-cli": "^3.1.0",
     "sinon": "^1.17.5",
-    "supertest": "^3.0.0"
+    "supertest": "Hellyna/supertest.git#3.0.0-domain-support"
   },
   "dependencies": {
     "babel-core": "^6.17.0",

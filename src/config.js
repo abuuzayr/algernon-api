@@ -21,6 +21,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const config = {
   all: {
+    manageDomain: 'manage',
     env: process.env.NODE_ENV || 'development',
     root: path.join(__dirname, '..'),
     port: process.env.PORT || 9000,

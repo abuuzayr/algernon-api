@@ -15,7 +15,7 @@ router.get('/',
   index)
 
 router.get('/me',
-  token({ required: true }),
+  token({ required: true, roles: ['super_admin', 'store_admin'] }),
   showMe)
 
 router.get('/:id',
@@ -28,7 +28,7 @@ router.post('/',
   create)
 
 router.put('/me',
-  token({ required: true }),
+  token({ required: true, roles: ['super_admin', 'store_admin'] }),
   body(v.updateMe),
   updateMe)
 

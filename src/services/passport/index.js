@@ -6,6 +6,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
 import { jwtSecret } from '../../config'
 import * as facebookService from '../facebook'
 import User, { schema } from '../../api/user/model'
+import { userFilter } from '../domain-filter'
 
 export const password = () => (req, res, next) =>
   passport.authenticate('password', { session: false }, (err, user, info) => {
@@ -23,7 +24,7 @@ export const password = () => (req, res, next) =>
 export const facebook = () =>
   passport.authenticate('facebook', { session: false })
 
-export const token = ({ required, roles = User.roles } = {}) => (req, res, next) =>
+export const token = ({ required, roles } = {}) => (req, res, next) =>
   passport.authenticate('token', { session: false }, (err, user, info) => {
     if (err || (required && !user) || (required && !~roles.indexOf(user.role))) {
       return res.status(401).end()
@@ -34,24 +35,27 @@ export const token = ({ required, roles = User.roles } = {}) => (req, res, next)
     })
   })(req, res, next)
 
-passport.use('password', new BasicStrategy((email, password, done) => {
-  const userSchema = new Schema({ email: schema.tree.email, password: schema.tree.password })
+passport.use('password', new BasicStrategy(
+  { passReqToCallback: true },
+  (req, email, password, done) => {
+    const userSchema = new Schema({ email: schema.tree.email, password: schema.tree.password })
 
-  userSchema.validate({ email, password }, (err) => {
-    if (err) done(err)
-  })
+    userSchema.validate({ email, password }, (err) => {
+      if (err) done(err)
+    })
 
-  User.findOne({ email }).then((user) => {
-    if (!user) {
-      done(true)
-      return null
-    }
-    return user.authenticate(password, user.password).then((user) => {
-      done(null, user)
-      return null
-    }).catch(done)
+    User.findOne(userFilter(req.headers.host, { email })).then((user) => {
+      if (!user) {
+        done(true)
+        return null
+      }
+      return user.authenticate(password, user.password).then((user) => {
+        done(null, user)
+        return null
+      }).catch(done)
+    })
   })
-}))
+)
 
 passport.use('facebook', new BearerStrategy((token, done) => {
   facebookService.getUser(token).then((user) => {
@@ -68,9 +72,10 @@ passport.use('token', new JwtStrategy({
     ExtractJwt.fromUrlQueryParameter('access_token'),
     ExtractJwt.fromBodyField('access_token'),
     ExtractJwt.fromAuthHeaderWithScheme('Bearer')
-  ])
-}, ({ id }, done) => {
-  User.findById(id).then((user) => {
+  ]),
+  passReqToCallback: true
+}, (req, { id }, done) => {
+  User.findOne(userFilter(req.headers.host, { _id: id })).then((user) => {
     done(null, user)
     return null
   }).catch(done)
