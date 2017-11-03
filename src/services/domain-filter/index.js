@@ -14,7 +14,6 @@ export const userFilter = (host, criteria) => {
   if (domain === manageDomain) {
     c.role = { $in: ['super_admin', 'store_admin'] }
   } else {
-    console.log('SHOULD NOT HAPPEN')
     c.domain = domain
     c.role = 'customer'
     c.salesChannelType = 'ecommerce'
