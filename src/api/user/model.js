@@ -79,16 +79,19 @@ userSchema.pre('validate', function (next) {
       next(new Error('salesChannelType must be provided if role is customer.'))
       return
     }
-
-    SalesChannel.findOne({
-      domain: this.domain,
-      type: this.salesChannelType
-    }).exec().then((doc) => {
-      if (!doc) {
-        next(new Error('Creation of this customer is blocked because the targeted salesChannel does not exist.'))
-      }
-    })
   }
+  next()
+})
+
+userSchema.pre('validate', function (next) {
+  SalesChannel.findOne({
+    domain: this.domain,
+    type: this.salesChannelType
+  }).exec().then((doc) => {
+    if (!doc) {
+      next(new Error('Creation of this customer is blocked because the targeted salesChannel does not exist.'))
+    }
+  })
   next()
 })
 
