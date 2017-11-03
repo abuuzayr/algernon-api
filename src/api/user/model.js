@@ -2,10 +2,12 @@ import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 import randtoken from 'rand-token'
 import mongoose, { Schema } from 'mongoose'
+import validate from 'mongoose-validator'
 import mongooseKeywords from 'mongoose-keywords'
 import { env } from '../../config'
+import SalesChannel, { salesChannelTypes } from '../sales-channel/model'
 
-const roles = ['store_admin', 'super_admin']
+const roles = ['store_admin', 'super_admin', 'customer']
 
 const userSchema = new Schema({
   email: {
@@ -37,6 +39,17 @@ const userSchema = new Schema({
   picture: {
     type: String,
     trim: true
+  },
+  domain: {
+    type: String,
+    validate: validate({
+      validator: 'isFQDN',
+      message: 'Is not a FQDN'
+    })
+  },
+  salesChannelType: {
+    type: String,
+    enum: salesChannelTypes
   }
 }, {
   timestamps: true
@@ -53,6 +66,30 @@ userSchema.path('email').set(function (email) {
   }
 
   return email
+})
+
+userSchema.pre('validate', function (next) {
+  if (this.role === 'customer') {
+    if (!this.domain) {
+      next(new Error('Domain must be provided if role is customer.'))
+      return
+    }
+
+    if (!this.salesChannelType) {
+      next(new Error('salesChannelType must be provided if role is customer.'))
+      return
+    }
+
+    SalesChannel.findOne({
+      domain: this.domain,
+      type: this.salesChannelType
+    }).exec().then((doc) => {
+      if (!doc) {
+        next(new Error('Creation of this customer is blocked because the targeted salesChannel does not exist.'))
+      }
+    })
+  }
+  next()
 })
 
 userSchema.pre('save', function (next) {
@@ -85,7 +122,7 @@ userSchema.methods = {
 userSchema.statics = {
   roles,
 
-  createFromService ({ service, id, email, name, picture }) {
+  createFromService ({ service, id, email, name, picture, domain, salesChannelType }) {
     return this.findOne({ $or: [{ [`services.${service}`]: id }, { email }] }).then((user) => {
       if (user) {
         user.services[service] = id
@@ -100,7 +137,9 @@ userSchema.statics = {
           password,
           name,
           picture,
-          role: 'store_admin'
+          domain,
+          salesChannelType,
+          role: 'customer'
         })
       }
     })

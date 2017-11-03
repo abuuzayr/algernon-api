@@ -77,7 +77,9 @@ describe('createFromService', () => {
       id: '123',
       name: 'Test Name',
       email: 'test@test.com',
-      picture: 'test.jpg'
+      picture: 'test.jpg',
+      domain: 'test.example.com',
+      salesChannelType: 'ecommerce'
     }
   })
 
@@ -88,7 +90,10 @@ describe('createFromService', () => {
       })
 
       it('updates user when email is already registered', async () => {
-        const updatedUser = await User.createFromService({ ...serviceUser, email: 'a@a.com' })
+        const updatedUser = await User.createFromService({
+          ...serviceUser,
+          email: 'a@a.com'
+        })
         // keep
         expect(updatedUser.id).toBe(user.id)
         expect(updatedUser.email).toBe(user.email)

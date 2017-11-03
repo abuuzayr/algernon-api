@@ -6,7 +6,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
 import { jwtSecret } from '../../config'
 import * as facebookService from '../facebook'
 import User, { schema } from '../../api/user/model'
-import { userFilter } from '../domain-filter'
+import { userFilter, domainFromHost } from '../domain-filter'
 
 export const password = () => (req, res, next) =>
   passport.authenticate('password', { session: false }, (err, user, info) => {
@@ -57,14 +57,18 @@ passport.use('password', new BasicStrategy(
   })
 )
 
-passport.use('facebook', new BearerStrategy((token, done) => {
-  facebookService.getUser(token).then((user) => {
-    return User.createFromService(user)
-  }).then((user) => {
-    done(null, user)
-    return null
-  }).catch(done)
-}))
+passport.use('facebook', new BearerStrategy(
+  { passReqToCallback: true },
+  (req, token, done) => {
+    facebookService.getUser(token).then((user) => {
+      user = { ...user, domain: domainFromHost(req.headers.host) }
+      return User.createFromService(user)
+    }).then((user) => {
+      done(null, user)
+      return null
+    }).catch(done)
+  })
+)
 
 passport.use('token', new JwtStrategy({
   secretOrKey: jwtSecret,
