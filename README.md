@@ -6,6 +6,7 @@ be found [here](generator-rest.md).*
 # Requirements
 
 + NodeJS v6.11
++ MongoDB v3.4
 + Yarn Latest
 
 # Instructions
