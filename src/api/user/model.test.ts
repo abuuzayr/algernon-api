@@ -1,5 +1,6 @@
 import * as crypto from "crypto";
 import { User } from "./model";
+import { SalesChannel } from "../sales-channel/model";
 
 let user;
 
@@ -71,6 +72,23 @@ describe("authenticate", () => {
 
 describe("createFromService", () => {
   let serviceUser;
+  let storeAdmin;
+  let salesChannel;
+
+  beforeAll(async () => {
+    storeAdmin = await new User({
+      name: "Store Admin",
+      email: "store_admin@example.com",
+      password: "password123",
+      role: "store_admin"
+    }).save();
+
+    salesChannel = await new SalesChannel({
+      name: "Ecommerce Sales Channel",
+      owner: storeAdmin,
+      type: "ecommerce"
+    });
+  });
 
   beforeEach(() => {
     serviceUser = {
@@ -79,11 +97,11 @@ describe("createFromService", () => {
       email: "test@test.com",
       picture: "test.jpg",
       domain: "test.example.com",
-      salesChannelType: "ecommerce"
+      salesChannel: salesChannel,
     };
-  })
+  });
 
-    ; ["facebook"].forEach((service) => {
+    ["facebook"].forEach((service) => {
       describe(service, () => {
         beforeEach(() => {
           serviceUser.service = service;

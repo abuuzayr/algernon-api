@@ -1,11 +1,12 @@
 import { Document, Model } from "mongoose";
+import { ISalesChannel } from "../sales-channel/interfaces";
 
 export interface IUserDocument extends Document {
   id: string;
   email: string;
   picture: string;
   domain: string;
-  salesChannelType: string;
+  salesChannel: ISalesChannel;
   name: string;
   password: string;
   role: string;

@@ -41,17 +41,11 @@ const userSchema = new Schema({
     type: String,
     trim: true
   },
-  domain: {
-    type: String,
-    validate: validate({
-      validator: "isFQDN",
-      message: "Is not a FQDN"
-    })
+  salesChannel: {
+    type: Schema.Types.ObjectId,
+    ref: "SalesChannel",
+    index: true
   },
-  salesChannelType: {
-    type: String,
-    enum: salesChannelTypes
-  }
 }, {
   timestamps: true
 });
@@ -71,35 +65,17 @@ userSchema.path("email").set(function (email: string) {
 
 userSchema.pre("validate", function (next) {
   if (this.role === "customer") {
-    if (!this.domain) {
-      next(new Error("Domain must be provided if role is customer."));
-      return;
-    }
-
-    if (!this.salesChannelType) {
-      next(new Error("salesChannelType must be provided if role is customer."));
+    if (!this.salesChannel) {
+      next(new Error("SalesChannel must be provided if role is customer or store_admin."));
       return;
     }
   }
   next();
 });
 
-userSchema.pre("validate", function (next) {
-  SalesChannel.findOne({
-    domain: this.domain,
-    type: this.salesChannelType
-  }).exec().then((doc) => {
-    if (!doc) {
-      next(new Error("Creation of this customer is blocked because the targeted salesChannel does not exist."));
-    }
-  });
-  next();
-});
-
 userSchema.pre("save", function (next) {
   if (!this.isModified("password")) return next();
 
-  /* istanbul ignore next */
   const rounds = config.env === "test" ? 1 : 9;
 
   bcrypt.hash(this.password, rounds).then((hash) => {
@@ -127,7 +103,7 @@ userSchema.statics = {
   roles,
 
   createFromService (service: string, {
-    id, email, name, picture, domain, salesChannelType }: IUser) {
+    id, email, name, picture, domain, salesChannel }: IUser) {
     return this.findOne({
       $or: [{ [`services.${service}`]: id }, { email }]
     }).then((user: IUser) => {
@@ -145,7 +121,7 @@ userSchema.statics = {
           name,
           picture,
           domain,
-          salesChannelType,
+          salesChannel,
           role: "customer"
         });
       }
