@@ -9,7 +9,7 @@ export const create = (
   next: NextFunction
 ) => {
   const msg = "You are not allowed to create SalesChannels for other users";
-  if (user.role === "store_admin" && user.id !== body.userRef) {
+  if (user.role === "store_admin" && user.id !== body.owner) {
     res.status(401).json({
       valid: false,
       message: msg
@@ -28,7 +28,7 @@ export const index = (
   next: NextFunction
 ) =>
   SalesChannel.find(query, select, cursor)
-    .then((salesChannels) => salesChannels.filter((sc) => sc.userRef + "" === user.id))
+    .then((salesChannels) => salesChannels.filter((sc) => sc.owner.id + "" === user.id))
     .then((salesChannels) => salesChannels.map((salesChannel) => salesChannel.view()))
     .then(success(res))
     .catch(next);
@@ -43,7 +43,7 @@ export const show = (
     .then((result) => {
       if (!result) return undefined;
       if (user.role === "super_admin" ||
-        (user.role === "store_admin" && (result.userRef + "") === user.id)) {
+        (user.role === "store_admin" && (result.owner + "") === user.id)) {
         return result;
       }
       res.status(401).json({
@@ -75,8 +75,8 @@ export const update = (
       if (user.role === "super_admin") {
         return result;
       }
-      if (user.role === "store_admin" && (result.userRef + "") === user.id) {
-        if (body.hasOwnProperty("userRef") && body.userRef !== user.id) {
+      if (user.role === "store_admin" && (result.owner + "") === user.id) {
+        if (body.hasOwnProperty("owner") && body.owner !== user.id) {
           res.status(401).json({
             valid: false,
             message: "You have no rights to modify this data."
@@ -105,7 +105,7 @@ export const destroy = (
     .then(notFound(res))
     .then((sc) => {
       if (user.role === "super_admin" ||
-        (user.role === "store_admin" && (sc.userRef + "") === user.id)) {
+        (user.role === "store_admin" && (sc.owner + "") === user.id)) {
         return sc;
       }
       res.status(401).json({

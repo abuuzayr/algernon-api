@@ -6,7 +6,7 @@ const defaultValidator = schema.obj;
 const updateValidator = _.cloneDeep(defaultValidator);
 delete updateValidator.name.required;
 delete updateValidator.domain.required;
-delete updateValidator.userRef.required;
+delete updateValidator.owner.required;
 delete updateValidator.type.required;
 
 export default {

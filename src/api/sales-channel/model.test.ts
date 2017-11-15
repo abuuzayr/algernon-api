@@ -10,7 +10,7 @@ beforeEach(async () => {
     password: "123456"
   });
   salesChannel = await SalesChannel.create({
-    userRef: user.id,
+    owner: user,
     domain: "test.example.com",
     name: "test",
     type: "ecommerce",
@@ -27,7 +27,7 @@ describe("view", () => {
     const view = salesChannel.view();
     expect(typeof view).toBe("object");
     expect(view.id).toBe(salesChannel.id);
-    expect(view.userRef).toBe(salesChannel.userRef);
+    expect(view.owner).toBe(salesChannel.owner);
     expect(view.domain).toBe(salesChannel.domain);
     expect(view.name).toBe(salesChannel.name);
     expect(view.type).toBe(salesChannel.type);

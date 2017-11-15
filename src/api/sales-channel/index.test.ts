@@ -27,7 +27,7 @@ beforeEach(async () => {
   adminId = admin.id;
   adminSession = signSync(adminId);
   salesChannel = await SalesChannel.create({
-    userRef: userId,
+    owner: userId,
     domain: "storeadmin.example.com",
     name: "test",
     type: "ecommerce"
@@ -42,7 +42,7 @@ test("POST /sales-channels 201 (super_admin)", async () => {
     .post("/")
     .send({
       access_token: adminSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -54,7 +54,7 @@ test("POST /sales-channels 201 (super_admin)", async () => {
     });
   expect(status).toBe(201);
   expect(typeof body).toEqual("object");
-  expect(body.userRef).toEqual(userId);
+  expect(body.owner).toEqual(userId);
   expect(body.domain).toEqual(scdomain);
   expect(body.name).toEqual("test");
   expect(body.type).toEqual(sctype);
@@ -73,7 +73,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
     .post("/")
     .send({
       access_token: adminSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -94,7 +94,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
     .post("/")
     .send({
       access_token: adminSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -115,7 +115,28 @@ test("POST /sales-channels 400 (super_admin)", async () => {
     .post("/")
     .send({
       access_token: adminSession,
-      userRef: adminId,
+      owner: "xxx",
+      domain: scdomain,
+      name: "test",
+      type: sctype,
+      siteData: "test",
+      emailTemplates: "test",
+      easyShip: "test",
+      facebook: "test",
+      sendGrid: "test"
+    });
+  expect(status).toBe(400);
+});
+
+// Attempt to create with invalid userref with super_admin
+test("POST /sales-channels 400 (super_admin)", async () => {
+  const scdomain = "test.example.com";
+  const sctype = "ecommerce";
+  const { status } = await request(app(), C.manageDomain)
+    .post("/")
+    .send({
+      access_token: adminSession,
+      owner: adminId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -138,7 +159,7 @@ test("POST /sales-channels 201 (store_admin)", async () => {
     .post("/")
     .send({
       access_token: userSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -150,7 +171,7 @@ test("POST /sales-channels 201 (store_admin)", async () => {
     });
   expect(status).toBe(201);
   expect(typeof body).toEqual("object");
-  expect(body.userRef).toEqual(userId);
+  expect(body.owner).toEqual(userId);
   expect(body.domain).toEqual(scdomain);
   expect(body.name).toEqual("test");
   expect(body.type).toEqual(sctype);
@@ -169,7 +190,7 @@ test("POST /sales-channels 400 (store_admin)", async () => {
     .post("/")
     .send({
       access_token: userSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -190,7 +211,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
     .post("/")
     .send({
       access_token: userSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -212,7 +233,7 @@ test("POST /sales-channels 401 (store_admin)", async () => {
     .post("/")
     .send({
       access_token: userSession,
-      userRef: adminId,
+      owner: adminId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -234,7 +255,7 @@ test("POST /sales-channels 401 (store_admin)", async () => {
     .post("/")
     .send({
       access_token: userSession,
-      userRef: user2Id,
+      owner: user2Id,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -254,7 +275,7 @@ test("POST /sales-channels 401", async () => {
   const { status } = await request(app(), C.manageDomain)
     .post("/")
     .send({
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -280,13 +301,13 @@ test("GET /sales-channels 200 (super_admin)", async () => {
 // his sales channels.
 test("GET /sales-channels 200 (store_admin)", async () => {
   await SalesChannel.create({
-    userRef: userId,
+    owner: userId,
     domain: "storeadmin1.example.com",
     name: "test",
     type: "ecommerce"
   });
   await SalesChannel.create({
-    userRef: user2Id,
+    owner: user2Id,
     domain: "storeadmin2.example.com",
     name: "test",
     type: "ecommerce"
@@ -297,7 +318,7 @@ test("GET /sales-channels 200 (store_admin)", async () => {
   expect(status).toBe(200);
   expect(Array.isArray(body)).toBe(true);
   expect(body.reduce((reduced, value) => {
-    return reduced || value.userRef === userId;
+    return reduced || value.owner === userId;
   }, true)).toBe(true);
 });
 
@@ -348,7 +369,7 @@ test("PUT /sales-channels/:id 200 (super_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
-      userRef: user2Id,
+      owner: user2Id,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -361,7 +382,7 @@ test("PUT /sales-channels/:id 200 (super_admin)", async () => {
   expect(status).toBe(200);
   expect(typeof body).toEqual("object");
   expect(body.id).toEqual(salesChannel.id);
-  expect(body.userRef).toEqual(user2Id);
+  expect(body.owner).toEqual(user2Id);
   expect(body.domain).toEqual(scdomain);
   expect(body.name).toEqual("test");
   expect(body.type).toEqual(sctype);
@@ -380,7 +401,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -401,7 +422,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -426,7 +447,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -439,7 +460,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
   expect(status).toBe(400);
 });
 
-// Cannot modify saleschannel by id as a super_admin (invalid userRef)
+// Cannot modify saleschannel by id as a super_admin (invalid owner)
 test("PUT /sales-channels/:id 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
@@ -447,7 +468,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
-      userRef: "59f06076fe0ea41a2ae04536",
+      owner: "59f06076fe0ea41a2ae04536",
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -469,7 +490,7 @@ test("PUT /sales-channels/:id 200 (store_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -482,7 +503,7 @@ test("PUT /sales-channels/:id 200 (store_admin)", async () => {
   expect(status).toBe(200);
   expect(typeof body).toEqual("object");
   expect(body.id).toEqual(salesChannel.id);
-  expect(body.userRef).toEqual(userId);
+  expect(body.owner).toEqual(userId);
   expect(body.domain).toEqual(scdomain);
   expect(body.name).toEqual("test");
   expect(body.type).toEqual(sctype);
@@ -501,7 +522,7 @@ test("PUT /sales-channels/:id 200 (store_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -523,7 +544,7 @@ test("PUT /sales-channels/:id 400 (store_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -545,7 +566,7 @@ test("PUT /sales-channels/:id 401 (store_admin)", async () => {
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
-      userRef: user2Id,
+      owner: user2Id,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -573,7 +594,7 @@ test("PUT /sales-channels/:id 404 (super_admin)", async () => {
     .put("/123456789098765432123456")
     .send({
       access_token: adminSession,
-      userRef: user2Id,
+      owner: user2Id,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -594,7 +615,7 @@ test("PUT /sales-channels/:id 404 (store_admin)", async () => {
     .put("/123456789098765432123456")
     .send({
       access_token: adminSession,
-      userRef: userId,
+      owner: userId,
       domain: scdomain,
       name: "test",
       type: sctype,
@@ -616,7 +637,7 @@ test("DELETE /sales-channels/:id 204 (super_admin)", async () => {
 
 // Able to delete sc by id by store_admin
 test("DELETE /sales-channels/:id 204 (store_admin)", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app(), C.manageDomain)
     .delete(`/${salesChannel.id}`).query({ access_token: userSession });
   expect(status).toBe(204);
 });

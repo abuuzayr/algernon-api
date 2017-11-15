@@ -11,27 +11,22 @@ export const salesChannelTypes = [
 ];
 
 const salesChannelSchema = new Schema({
-  userRef: {
+  owner: {
     type: Schema.Types.ObjectId,
+    ref: "User",
+    index: true,
     required: true,
     validate: {
       isAsync: true,
-      validator (v: string, done: Function) {
+      validator(v: string, done: Function) {
         User.findById(v, (err: MongoError, doc) => {
-          if (err) {
-            done(false, `SalesChannel validation failed: ${err}`);
-          }
-          if (!doc) {
-            done(false, "User not found.");
-            return;
-          }
-          if (doc.role !== "store_admin") {
-            done(false, "User can only be of role store_admin");
-            return;
-          }
+          if (err) return done(false, err + "");
+          if (!doc) return done(false, "User not found.");
+          if (doc.role !== "store_admin")
+            return done(false, "User can only be of role store_admin");
           done(true);
         });
-      }
+      },
     }
   },
   domain: {
@@ -40,13 +35,6 @@ const salesChannelSchema = new Schema({
     // TODO: domain is required until we have multiple SCtypes
     required: true,
     validate: [
-      {
-        validator (v: string) {
-          if (salesChannelTypes.indexOf(v) > -1) return false;
-          return true;
-        },
-        message: "Not a valid SalesChannel"
-      },
       validate({
         validator: "isFQDN",
         message: "Is not a FQDN"
@@ -86,7 +74,7 @@ salesChannelSchema.methods = {
     const view = {
       // simple view
       id: this.id,
-      userRef: this.userRef,
+      owner: this.owner,
       domain: this.domain,
       name: this.name,
       type: this.type,

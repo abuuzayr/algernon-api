@@ -1,7 +1,8 @@
 import { Document, Model } from "mongoose";
+import { IUserDocument } from "../user/interfaces";
 
 export interface ISalesChannelDocument extends Document {
-  userRef: string;
+  owner: IUserDocument,
 }
 
 export interface ISalesChannel extends ISalesChannelDocument {
