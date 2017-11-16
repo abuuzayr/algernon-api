@@ -1,10 +1,10 @@
 import { stub } from "sinon";
 import * as request from "supertest";
-import { User, IUser } from "../user/model";
+import { IUser } from "../user/interfaces";
+import { User } from "../user/model";
 import { verify } from "../../services/jwt";
 import * as facebook from "../../services/facebook";
 import express from "../../services/express";
-import C from "../../config";
 import routes from ".";
 
 const app = () => express(routes);
@@ -20,7 +20,7 @@ beforeEach(async () => {
 });
 
 test("POST /auth 201", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .auth("a@a.com", "123456");
   expect(status).toBe(201);
@@ -32,7 +32,7 @@ test("POST /auth 201", async () => {
 });
 
 test("POST /auth 400 - invalid email", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .auth("invalid", "123456");
   expect(status).toBe(400);
@@ -41,7 +41,7 @@ test("POST /auth 400 - invalid email", async () => {
 });
 
 test("POST /auth 400 - invalid password", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .auth("a@a.com", "123");
   expect(status).toBe(400);
@@ -50,21 +50,21 @@ test("POST /auth 400 - invalid password", async () => {
 });
 
 test("POST /auth 401 - user does not exist", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .auth("b@b.com", "123456");
   expect(status).toBe(401);
 });
 
 test("POST /auth 401 - wrong password", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .auth("a@a.com", "654321");
   expect(status).toBe(401);
 });
 
 test("POST /auth 401 (apiKey) - missing auth", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/");
   expect(status).toBe(401);
 });

@@ -38,7 +38,7 @@ beforeEach(async () => {
 test("POST /sales-channels 201 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .send({
       access_token: adminSession,
@@ -69,7 +69,7 @@ test("POST /sales-channels 201 (super_admin)", async () => {
 test("POST /sales-channels 400 (super_admin)", async () => {
   const scdomain = "testexamplecom";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: adminSession,
@@ -90,7 +90,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
 test("POST /sales-channels 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "xxx";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: adminSession,
@@ -111,7 +111,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
 test("POST /sales-channels 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: adminSession,
@@ -132,7 +132,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
 test("POST /sales-channels 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: adminSession,
@@ -155,7 +155,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
 test("POST /sales-channels 201 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .send({
       access_token: userSession,
@@ -186,7 +186,7 @@ test("POST /sales-channels 201 (store_admin)", async () => {
 test("POST /sales-channels 400 (store_admin)", async () => {
   const scdomain = "testexamplecom";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: userSession,
@@ -207,7 +207,7 @@ test("POST /sales-channels 400 (store_admin)", async () => {
 test("POST /sales-channels 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "xxx";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: userSession,
@@ -229,7 +229,7 @@ test("POST /sales-channels 400 (super_admin)", async () => {
 test("POST /sales-channels 401 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: userSession,
@@ -251,7 +251,7 @@ test("POST /sales-channels 401 (store_admin)", async () => {
 test("POST /sales-channels 401 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       access_token: userSession,
@@ -272,7 +272,7 @@ test("POST /sales-channels 401 (store_admin)", async () => {
 test("POST /sales-channels 401", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({
       owner: userId,
@@ -290,7 +290,7 @@ test("POST /sales-channels 401", async () => {
 
 // Able to get list of sales channels as super_admin
 test("GET /sales-channels 200 (super_admin)", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .get("/")
     .query({ access_token: adminSession });
   expect(status).toBe(200);
@@ -312,7 +312,7 @@ test("GET /sales-channels 200 (store_admin)", async () => {
     name: "test",
     type: "ecommerce"
   });
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .get("/")
     .query({ access_token: userSession });
   expect(status).toBe(200);
@@ -324,14 +324,14 @@ test("GET /sales-channels 200 (store_admin)", async () => {
 
 // Unable to get list of sales channel as public
 test("GET /sales-channels 401", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .get("/");
   expect(status).toBe(401);
 });
 
 // Able to get info of any sales channel as super_admin
 test("GET /sales-channels/:id 200 (super_admin)", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .get(`/${salesChannel.id}`)
     .query({ access_token: adminSession });
   expect(status).toBe(200);
@@ -341,7 +341,7 @@ test("GET /sales-channels/:id 200 (super_admin)", async () => {
 
 // Able to get information of my sales channel
 test("GET /sales-channels/:id 200 (store_admin)", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .get(`/${salesChannel.id}`)
     .query({ access_token: userSession });
   expect(status).toBe(200);
@@ -349,14 +349,14 @@ test("GET /sales-channels/:id 200 (store_admin)", async () => {
 
 // Not able to get information of others sales channel
 test("GET /sales-channels/:id 401 (store_admin)", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .get(`/${salesChannel.id}`)
     .query({ access_token: user2Session });
   expect(status).toBe(401);
 });
 
 test("GET /sales-channels/:id 401", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .get(`/${salesChannel.id}`);
   expect(status).toBe(401);
 });
@@ -365,7 +365,7 @@ test("GET /sales-channels/:id 401", async () => {
 test("PUT /sales-channels/:id 200 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
@@ -397,7 +397,7 @@ test("PUT /sales-channels/:id 200 (super_admin)", async () => {
 test("PUT /sales-channels/:id 400 (super_admin)", async () => {
   const scdomain = "testexamplecom";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
@@ -418,7 +418,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
 test("PUT /sales-channels/:id 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommercess";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
@@ -443,7 +443,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
 test("PUT /sales-channels/:id 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommercesss";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
@@ -464,7 +464,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
 test("PUT /sales-channels/:id 400 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
@@ -486,7 +486,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
 test("PUT /sales-channels/:id 200 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
@@ -518,7 +518,7 @@ test("PUT /sales-channels/:id 200 (store_admin)", async () => {
 test("PUT /sales-channels/:id 200 (store_admin)", async () => {
   const scdomain = "testexamplecom";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
@@ -540,7 +540,7 @@ test("PUT /sales-channels/:id 200 (store_admin)", async () => {
 test("PUT /sales-channels/:id 400 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommercess";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
@@ -562,7 +562,7 @@ test("PUT /sales-channels/:id 400 (store_admin)", async () => {
 test("PUT /sales-channels/:id 401 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`)
     .send({
       access_token: userSession,
@@ -581,7 +581,7 @@ test("PUT /sales-channels/:id 401 (store_admin)", async () => {
 
 // Cannot modify sc by id as public user
 test("PUT /sales-channels/:id 401", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put(`/${salesChannel.id}`);
   expect(status).toBe(401);
 });
@@ -590,7 +590,7 @@ test("PUT /sales-channels/:id 401", async () => {
 test("PUT /sales-channels/:id 404 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put("/123456789098765432123456")
     .send({
       access_token: adminSession,
@@ -611,7 +611,7 @@ test("PUT /sales-channels/:id 404 (super_admin)", async () => {
 test("PUT /sales-channels/:id 404 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put("/123456789098765432123456")
     .send({
       access_token: adminSession,
@@ -630,35 +630,35 @@ test("PUT /sales-channels/:id 404 (store_admin)", async () => {
 
 // Able to delete sc by id by super_admin
 test("DELETE /sales-channels/:id 204 (super_admin)", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .delete(`/${salesChannel.id}`).query({ access_token: adminSession });
   expect(status).toBe(204);
 });
 
 // Able to delete sc by id by store_admin
 test("DELETE /sales-channels/:id 204 (store_admin)", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .delete(`/${salesChannel.id}`).query({ access_token: userSession });
   expect(status).toBe(204);
 });
 
 // Not able to delete sc by id by store_admin if sc does not belongs to me
 test("DELETE /sales-channels/:id 401 (store_admin)", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .delete(`/${salesChannel.id}`).query({ access_token: user2Session });
   expect(status).toBe(401);
 });
 
 // Not able to delete sc by id by public user
 test("DELETE /sales-channels/:id 401", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .delete(`/${salesChannel.id}`);
   expect(status).toBe(401);
 });
 
 // Not able to delete non-existent sc (as super_admin)
 test("DELETE /sales-channels/:id 404 (super_admin)", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .delete("/123456789098765432123456")
     .query({ access_token: adminSession });
   expect(status).toBe(404);
@@ -666,7 +666,7 @@ test("DELETE /sales-channels/:id 404 (super_admin)", async () => {
 
 // Not able to delete non-existent sc (as store_admin)
 test("DELETE /sales-channels/:id 401 (store_admin)", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .delete("/123456789098765432123456")
     .query({ access_token: userId });
   expect(status).toBe(401);

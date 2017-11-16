@@ -1,6 +1,5 @@
 import * as request from "supertest";
 import * as nock from "nock";
-import C from "../../config";
 import express from "../../services/express";
 import { User } from "../user/model";
 import { PasswordReset } from "./model";
@@ -25,7 +24,7 @@ afterEach(() => {
 });
 
 test("POST /password-resets 400 - missing email", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .send({ link: "http://example.com" });
   expect(status).toBe(400);
@@ -34,7 +33,7 @@ test("POST /password-resets 400 - missing email", async () => {
 });
 
 test("POST /password-resets 400 - missing link", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .send({ email: "a@a.com" });
   expect(status).toBe(400);
@@ -43,14 +42,14 @@ test("POST /password-resets 400 - missing link", async () => {
 });
 
 test("POST /password-resets 404", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({ email: "b@b.com", link: "http://example.com" });
   expect(status).toBe(404);
 });
 
 test("POST /password-resets 400 - invalid email", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .post("/")
     .send({ email: "invalid", link: "http://example.com" });
   expect(status).toBe(400);
@@ -59,14 +58,14 @@ test("POST /password-resets 400 - invalid email", async () => {
 });
 
 test("POST /password-resets 202", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .post("/")
     .send({ email: "a@a.com", link: "http://example.com" });
   expect(status).toBe(202);
 });
 
 test("GET /password-resets/:token 200", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .get(`/${passwordReset.token}`);
   expect(status).toBe(200);
   expect(typeof body).toBe("object");
@@ -76,14 +75,14 @@ test("GET /password-resets/:token 200", async () => {
 });
 
 test("GET /password-resets/:token 404", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .get("/123");
   expect(status).toBe(404);
 });
 
 test("PUT /password-resets/:token 200", async () => {
   await PasswordReset.create({ user });
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .put(`/${passwordReset.token}`)
     .send({ password: "654321" });
   const [updatedUser, passwordResets] = await Promise.all([
@@ -99,7 +98,7 @@ test("PUT /password-resets/:token 200", async () => {
 });
 
 test("PUT /password-resets/:token 400 - invalid password", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .put(`/${passwordReset.token}`)
     .send({ password: "321" });
   expect(status).toBe(400);
@@ -108,7 +107,7 @@ test("PUT /password-resets/:token 400 - invalid password", async () => {
 });
 
 test("PUT /password-resets/:token 400 - missing password", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app())
     .put(`/${passwordReset.token}`);
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
@@ -116,7 +115,7 @@ test("PUT /password-resets/:token 400 - missing password", async () => {
 });
 
 test("PUT /password-resets/:token 404", async () => {
-  const { status } = await request(app(), C.manageDomain)
+  const { status } = await request(app())
     .put("/123")
     .send({ password: "654321" });
   expect(status).toBe(404);
