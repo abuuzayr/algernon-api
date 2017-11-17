@@ -11,11 +11,10 @@ import {
   Strategy as JwtStrategy,
   ExtractJwt, VerifiedCallback
 } from "passport-jwt";
-import config from "../../config";
+import C from "../../config";
 import * as facebookService from "../facebook";
 import { User, schema } from "../../api/user/model";
 import { IUser } from "../../api/user/interfaces";
-import { userFilter, domainFromHost } from "../domain-filter";
 import { Request, Response, NextFunction } from "express";
 import { ValidationError } from "mongoose";
 
@@ -64,7 +63,7 @@ passport.use("password", new BasicStrategy(
       if (err) done(err);
     });
 
-    User.findOne(userFilter(req.headers.host, { email })).then((user: IUser) => {
+    User.findOne({ email, "salesChannel.domain": req.domain }).then((user: IUser) => {
       if (!user) {
         done(true);
         return undefined;
@@ -80,7 +79,7 @@ passport.use("facebook", new BearerStrategy(
   { passReqToCallback: true, scope: undefined, realm: undefined },
   (req: Request, token: string, done: VerifiedCallback) => {
     facebookService.getUser(token).then((user) => {
-      const u: any = { ...user, domain: domainFromHost(req.headers.host) };
+      const u: any = { ...user, domain: req.domain };
       return schema.methods.createFromService(user.service, u);
     }).then((user) => {
       done(undefined, user);
@@ -90,7 +89,7 @@ passport.use("facebook", new BearerStrategy(
 ));
 
 passport.use("token", new JwtStrategy({
-  secretOrKey: config.jwtSecret,
+  secretOrKey: C.jwtSecret,
   jwtFromRequest: ExtractJwt.fromExtractors([
     ExtractJwt.fromUrlQueryParameter("access_token"),
     ExtractJwt.fromBodyField("access_token"),
@@ -98,7 +97,7 @@ passport.use("token", new JwtStrategy({
   ]),
   passReqToCallback: true
 }, (req: Request, { id }: IUser, done: VerifiedCallback) => {
-  User.findOne(userFilter(req.headers.host, { _id: id })).then((user) => {
+  User.findOne({ _id: id, "salesChannel.domain": req.domain }).then((user) => {
     done(undefined, user);
     return undefined;
   }).catch(done);

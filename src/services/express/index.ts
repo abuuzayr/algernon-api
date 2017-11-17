@@ -6,13 +6,14 @@ import * as morgan from "morgan";
 import * as bodyParser from "body-parser";
 import { errorHandler as queryErrorHandler } from "querymen";
 import { errorHandler as bodyErrorHandler } from "bodymen";
-import config from "../../config";
-import { DomainError } from "../../error";
+import { jsonifyErrors } from "./jsonify-errors";
+import { domainTools } from "./domain-tools";
+import C from "../../config";
 
 export default (routes: express.Router) => {
   const app = express();
 
-  if (config.env === "production") {
+  if (C.env === "production") {
     app.set("forceSSLOptions", {
       enable301Redirects: false,
       trustXFPHeader: true
@@ -20,7 +21,7 @@ export default (routes: express.Router) => {
     app.use(forceSSL);
   }
 
-  if (config.env === "production" || config.env === "development") {
+  if (C.env === "production" || C.env === "development") {
     app.use(cors());
     app.use(compression());
     app.use(morgan("dev"));
@@ -31,23 +32,7 @@ export default (routes: express.Router) => {
   app.use(routes);
   app.use(queryErrorHandler());
   app.use(bodyErrorHandler());
-
-  app.use((err: Error, req: express.Request, res: express.Response, next: Function) => {
-    let statusCode = err.StatusCode || 500;
-
-    if (config.env !== "development") {
-      delete err.stack;
-    }
-
-    if (err.name === "ValidationError") {
-      statusCode = 400;
-    }
-
-    if (err instanceof DomainError) {
-      statusCode = 404;
-    }
-
-    res.status(statusCode).json(err);
-  });
+  app.use(jsonifyErrors());
+  app.use(domainTools());
   return app;
 };

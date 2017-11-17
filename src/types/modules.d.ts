@@ -9,12 +9,13 @@ import * as express from "express";
 declare module "express" {
   interface Request {
     bodymen: {
-      body: any;
+      body: any,
     },
     querymen: {
-      query: any;
-      select: any;
-      cursor: any;
+      query: any,
+      select: any,
+      cursor: any,
     },
+    domain: string,
   }
 }
