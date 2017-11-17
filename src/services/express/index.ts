@@ -7,6 +7,7 @@ import * as bodyParser from "body-parser";
 import { errorHandler as queryErrorHandler } from "querymen";
 import { errorHandler as bodyErrorHandler } from "bodymen";
 import config from "../../config";
+import { DomainError } from "../../error";
 
 export default (routes: express.Router) => {
   const app = express();
@@ -40,6 +41,10 @@ export default (routes: express.Router) => {
 
     if (err.name === "ValidationError") {
       statusCode = 400;
+    }
+
+    if (err instanceof DomainError) {
+      statusCode = 404;
     }
 
     res.status(statusCode).json(err);

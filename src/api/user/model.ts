@@ -6,7 +6,7 @@ import * as validate from "mongoose-validator";
 import * as mongooseKeywords from "mongoose-keywords";
 import config from "../../config";
 import { SalesChannel, salesChannelTypes } from "../sales-channel/model";
-import { IUserModel, IUser, IUserDocument } from "./interfaces";
+import { IUserModel, IUser } from "./interfaces";
 
 const roles = ["store_admin", "super_admin", "customer"];
 
@@ -103,7 +103,7 @@ userSchema.statics = {
   roles,
 
   createFromService (service: string, {
-    id, email, name, picture, domain, salesChannel }: IUserDocument) {
+    id, email, name, picture, domain, salesChannel }: IUser) {
     return this.findOne({
       $or: [{ [`services.${service}`]: id }, { email }]
     }).then((user: IUser) => {

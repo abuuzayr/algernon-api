@@ -14,7 +14,8 @@ import {
 import config from "../../config";
 import * as facebookService from "../facebook";
 import { User, schema } from "../../api/user/model";
-import { IUser, IUserDocument } from "../../api/user/interfaces";
+import { IUser } from "../../api/user/interfaces";
+import { userFilter, domainFromHost } from "../domain-filter";
 import { Request, Response, NextFunction } from "express";
 import { ValidationError } from "mongoose";
 
@@ -63,7 +64,7 @@ passport.use("password", new BasicStrategy(
       if (err) done(err);
     });
 
-    User.findOne({ email }).then((user: IUser) => {
+    User.findOne(userFilter(req.headers.host, { email })).then((user: IUser) => {
       if (!user) {
         done(true);
         return undefined;
@@ -78,8 +79,9 @@ passport.use("password", new BasicStrategy(
 passport.use("facebook", new BearerStrategy(
   { passReqToCallback: true, scope: undefined, realm: undefined },
   (req: Request, token: string, done: VerifiedCallback) => {
-    facebookService.getUser(token).then((user: any) => {
-      return User.createFromService(user.service, user);
+    facebookService.getUser(token).then((user) => {
+      const u: any = { ...user, domain: domainFromHost(req.headers.host) };
+      return schema.methods.createFromService(user.service, u);
     }).then((user) => {
       done(undefined, user);
       return undefined;
@@ -96,7 +98,7 @@ passport.use("token", new JwtStrategy({
   ]),
   passReqToCallback: true
 }, (req: Request, { id }: IUser, done: VerifiedCallback) => {
-  User.findById(id).then((user) => {
+  User.findOne(userFilter(req.headers.host, { _id: id })).then((user) => {
     done(undefined, user);
     return undefined;
   }).catch(done);

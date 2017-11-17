@@ -1,12 +1,13 @@
-import { Request, Response, NextFunction } from "express";
+import * as express from "express";
 import { success, notFound } from "../../services/response/";
 import { sendMail } from "../../services/sendgrid";
-import { User } from "../user/model";
 import { PasswordReset } from "./model";
+import { User } from "../user/model";
+import { NextFunction } from "express";
 
 export const create = (
-  { bodymen: { body: { email, link } } }: Request,
-  res: Response,
+  { bodymen: { body: { email, link } } }: express.Request,
+  res: express.Response,
   next: NextFunction
 ) => {
   User.findOne({ email })
@@ -31,7 +32,7 @@ export const create = (
   };
 export const show = (
   { params: { token } }: { params: { token: string } },
-  res: Response,
+  res: express.Response,
   next: NextFunction
 ) =>
   PasswordReset.findOne({ token })
@@ -42,8 +43,8 @@ export const show = (
     .catch(next);
 
 export const update = (
-  { params: { token }, bodymen: { body: { password } } }: Request,
-  res: Response,
+  { params: { token }, bodymen: { body: { password } } }: express.Request,
+  res: express.Response,
   next: NextFunction
 ) => {
   return PasswordReset.findOne({ token })

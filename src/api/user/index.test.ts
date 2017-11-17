@@ -1,4 +1,5 @@
 import *  as request from "supertest";
+import C from "../../config";
 import { signSync } from "../../services/jwt";
 import express from "../../services/express";
 import { User } from "./model";
@@ -32,7 +33,7 @@ beforeEach(async () => {
 });
 // super_admin can create store_admins
 test("POST /users 201 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -47,7 +48,7 @@ test("POST /users 201 (super_admin)", async () => {
 
 // super_admin can create super_admins
 test("POST /users 201 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -62,7 +63,7 @@ test("POST /users 201 (super_admin)", async () => {
 
 // super_admin attempts creating account with duplicated email
 test("POST /users 409 (super_admin) - duplicated email", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -77,7 +78,7 @@ test("POST /users 409 (super_admin) - duplicated email", async () => {
 
 // super_admin attempts creating account with invalid email
 test("POST /users 400 (super_admin) - invalid email", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -92,7 +93,7 @@ test("POST /users 400 (super_admin) - invalid email", async () => {
 
 // super_admin attempts creating account with missing email
 test("POST /users 400 (super_admin) - missing email", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -106,7 +107,7 @@ test("POST /users 400 (super_admin) - missing email", async () => {
 
 // super_admin attempts creating account with invalid_password
 test("POST /users 400 (super_admin) - invalid password", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -121,7 +122,7 @@ test("POST /users 400 (super_admin) - invalid password", async () => {
 
 // super_admin attempts creating account with missing_password
 test("POST /users 400 (super_admin) - missing password", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -135,7 +136,7 @@ test("POST /users 400 (super_admin) - missing password", async () => {
 
 // super_admin attempts creating account with invalid role
 test("POST /users 400 (super_admin) - invalid role", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
@@ -150,7 +151,7 @@ test("POST /users 400 (super_admin) - invalid role", async () => {
 
 // store_admin cannot create store_admin
 test("POST /users 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: session1,
@@ -163,7 +164,7 @@ test("POST /users 401 (store_admin)", async () => {
 
 // store_admin cannot create super_admin
 test("POST /users 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: session1,
@@ -176,7 +177,7 @@ test("POST /users 401 (store_admin)", async () => {
 
 // public cannot create super_admin
 test("POST /users 401 (public)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       email: "d@d.com",
@@ -188,7 +189,7 @@ test("POST /users 401 (public)", async () => {
 
 // public cannot create store_admin
 test("POST /users 401 (public)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .post("/")
     .send({
       email: "d@d.com",
@@ -200,7 +201,7 @@ test("POST /users 401 (public)", async () => {
 
 // super_admin can see all users
 test("GET /users 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: superAdminSession });
   expect(status).toBe(200);
@@ -209,7 +210,7 @@ test("GET /users 200 (super_admin)", async () => {
 
 // super_admin can see and paginate users
 test("GET /users?page=2&limit=1 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: superAdminSession, page: 2, limit: 1 });
   expect(status).toBe(200);
@@ -219,7 +220,7 @@ test("GET /users?page=2&limit=1 200 (super_admin)", async () => {
 
 // super_admin can see filter users by name
 test("GET /users?q=store_admin 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: superAdminSession, q: "store_admin" });
   expect(status).toBe(200);
@@ -229,7 +230,7 @@ test("GET /users?q=store_admin 200 (super_admin)", async () => {
 
 // super_admin can choose to only get certain fields of users
 test("GET /users?fields=name 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: superAdminSession, fields: "name" });
   expect(status).toBe(200);
@@ -239,7 +240,7 @@ test("GET /users?fields=name 200 (super_admin)", async () => {
 
 // store_admin cannot see all users
 test("GET /users 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: session1 });
   expect(status).toBe(401);
@@ -247,7 +248,7 @@ test("GET /users 401 (store_admin)", async () => {
 
 // store_admin cannot see and paginate users
 test("GET /users?page=2&limit=1 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: session1, page: 2, limit: 1 });
   expect(status).toBe(401);
@@ -255,7 +256,7 @@ test("GET /users?page=2&limit=1 401 (store_admin)", async () => {
 
 // store_admin cannot filter users by name
 test("GET /users?q=store_admin 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: session1, q: "store_admin" });
   expect(status).toBe(401);
@@ -263,7 +264,7 @@ test("GET /users?q=store_admin 401 (store_admin)", async () => {
 
 // super_admin cannot choose to only get certain fields of users
 test("GET /users?fields=name 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/")
     .query({ access_token: session1, fields: "name" });
   expect(status).toBe(401);
@@ -271,14 +272,14 @@ test("GET /users?fields=name 401 (store_admin)", async () => {
 
 // public cannot see all users
 test("GET /users 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/");
   expect(status).toBe(401);
 });
 
 // public cannot see and paginate users
 test("GET /users?page=2&limit=1 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/")
     .query({ page: 2, limit: 1 });
   expect(status).toBe(401);
@@ -286,7 +287,7 @@ test("GET /users?page=2&limit=1 401", async () => {
 
 // public cannot see filter users by name
 test("GET /users?q=store_admin 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/")
     .query({ q: "store_admin" });
   expect(status).toBe(401);
@@ -294,7 +295,7 @@ test("GET /users?q=store_admin 401", async () => {
 
 // public cannot choose to only get certain fields of users
 test("GET /users?fields=name 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/")
     .query({ fields: "name" });
   expect(status).toBe(401);
@@ -302,7 +303,7 @@ test("GET /users?fields=name 401", async () => {
 
 // super_admin can see herself
 test("GET /users/me 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get("/me")
     .query({ access_token: superAdminSession });
   expect(status).toBe(200);
@@ -312,7 +313,7 @@ test("GET /users/me 200 (super_admin)", async () => {
 
 // store_admin can see herself
 test("GET /users/me 200 (store_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get("/me")
     .query({ access_token: session1 });
   expect(status).toBe(200);
@@ -322,14 +323,14 @@ test("GET /users/me 200 (store_admin)", async () => {
 
 // public user cannot see herself.
 test("GET /users/me 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/me");
   expect(status).toBe(401);
 });
 
 // super_admin can see any user
 test("GET /users/:id 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get(`/${storeAdmin1.id}`)
     .query({ access_token: superAdminSession });
   expect(status).toBe(200);
@@ -338,7 +339,7 @@ test("GET /users/:id 200 (super_admin)", async () => {
 });
 
 test("GET /users/:id 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get(`/${storeAdmin2.id}`)
     .query({ access_token: superAdminSession });
   expect(status).toBe(200);
@@ -347,7 +348,7 @@ test("GET /users/:id 200 (super_admin)", async () => {
 });
 
 test("GET /users/:id 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .get(`/${superAdmin.id}`)
     .query({ access_token: superAdminSession });
   expect(status).toBe(200);
@@ -358,21 +359,21 @@ test("GET /users/:id 200 (super_admin)", async () => {
 // store_admin cannot see any users by id, even herself
 // Use /me instead.
 test("GET /users/:id 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get(`/${storeAdmin1.id}`)
     .query({ access_token: session1 });
   expect(status).toBe(401);
 });
 
 test("GET /users/:id 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get(`/${storeAdmin2.id}`)
     .query({ access_token: session1 });
   expect(status).toBe(401);
 });
 
 test("GET /users/:id 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get(`/${superAdmin.id}`)
     .query({ access_token: session1 });
   expect(status).toBe(401);
@@ -380,13 +381,13 @@ test("GET /users/:id 401 (store_admin)", async () => {
 
 // guessing the id is forbidden if you have no rights
 test("GET /users/:id 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/123456789098765432123456");
   expect(status).toBe(401);
 });
 
 test("GET /users/:id 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/123456789098765432123456")
     .query({ access_token: session1 });
   expect(status).toBe(401);
@@ -394,14 +395,14 @@ test("GET /users/:id 401 (store_admin)", async () => {
 
 // Finally return not found for those with rights.
 test("GET /users/:id 404", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .get("/123456789098765432123456")
     .query({ access_token: superAdminSession });
   expect(status).toBe(404);
 });
 // I can change my name as super_admin
 test("PUT /users/me 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put("/me")
     .send({ access_token: superAdminSession, name: "super_admin" });
   expect(status).toBe(200);
@@ -411,7 +412,7 @@ test("PUT /users/me 200 (super_admin)", async () => {
 
 // I can change my email as super_admin
 test("PUT /users/me 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put("/me")
     .send({ access_token: superAdminSession, email: "super_admin@example.com" });
   expect(status).toBe(200);
@@ -421,7 +422,7 @@ test("PUT /users/me 200 (super_admin)", async () => {
 
 // I can change my name as store_admin
 test("PUT /users/me 200 (store_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put("/me")
     .send({ access_token: session1, name: "store_admin" });
   expect(status).toBe(200);
@@ -431,7 +432,7 @@ test("PUT /users/me 200 (store_admin)", async () => {
 
 // I can change my email as store_admin
 test("PUT /users/me 200 (store_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put("/me")
     .send({ access_token: session1, email: "store_admin@example.com" });
   expect(status).toBe(200);
@@ -441,7 +442,7 @@ test("PUT /users/me 200 (store_admin)", async () => {
 
 // I cannot change anything as public
 test("PUT /users/me 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put("/me")
     .send({ name: "test" });
   expect(status).toBe(401);
@@ -449,7 +450,7 @@ test("PUT /users/me 401", async () => {
 
 // I can change a super_admin as super_admin
 test("PUT /users/:id 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put(`/${superAdmin.id}`)
     .send({ access_token: superAdminSession, name: "super_admin1" });
   expect(status).toBe(200);
@@ -459,7 +460,7 @@ test("PUT /users/:id 200 (super_admin)", async () => {
 
 // I can change a store_admin as super_admin
 test("PUT /users/:id 200 (super_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}`)
     .send({ access_token: superAdminSession, name: "store_admin1" });
   expect(status).toBe(200);
@@ -469,7 +470,7 @@ test("PUT /users/:id 200 (super_admin)", async () => {
 
 // I cannot change anything as store_admin
 test("PUT /users/:id 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}`)
     .send({ access_token: session1, name: "test" });
   expect(status).toBe(401);
@@ -477,7 +478,7 @@ test("PUT /users/:id 401 (store_admin)", async () => {
 
 // I cannot change anything by id as public user
 test("PUT /users/:id 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}`)
     .send({ name: "test" });
   expect(status).toBe(401);
@@ -485,7 +486,7 @@ test("PUT /users/:id 401", async () => {
 
 // I cannot change a non existing user by super_admin
 test("PUT /users/:id 404 (super_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put("/123456789098765432123456")
     .send({ access_token: superAdminSession, name: "test" });
   expect(status).toBe(404);
@@ -493,7 +494,7 @@ test("PUT /users/:id 404 (super_admin)", async () => {
 
 // I am not allowed to get what users are existing by store_admin
 test("PUT /users/:id 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put("/123456789098765432123456")
     .send({ access_token: session1, name: "test" });
   expect(status).toBe(401);
@@ -505,7 +506,7 @@ const passwordMatch = async (password, userId) => {
 };
 
 test("PUT /users/me/password 200 (store_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put("/me/password")
     .auth("a@a.com", "123456")
     .send({ password: "654321" });
@@ -516,7 +517,7 @@ test("PUT /users/me/password 200 (store_admin)", async () => {
 });
 
 test("PUT /users/me/password 400 (store_admin) - invalid password", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put("/me/password")
     .auth("a@a.com", "123456")
     .send({ password: "321" });
@@ -526,21 +527,21 @@ test("PUT /users/me/password 400 (store_admin) - invalid password", async () => 
 });
 
 test("PUT /users/me/password 401 (store_admin) - invalid authentication method", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put("/me/password")
     .send({ access_token: session1, password: "654321" });
   expect(status).toBe(401);
 });
 
 test("PUT /users/me/password 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put("/me/password")
     .send({ password: "654321" });
   expect(status).toBe(401);
 });
 
 test("PUT /users/:id/password 200 (store_admin)", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}/password`)
     .auth("a@a.com", "123456")
     .send({ password: "654321" });
@@ -551,7 +552,7 @@ test("PUT /users/:id/password 200 (store_admin)", async () => {
 });
 
 test("PUT /users/:id/password 400 (store_admin) - invalid password", async () => {
-  const { status, body } = await request(app())
+  const { status, body } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}/password`)
     .auth("a@a.com", "123456")
     .send({ password: "321" });
@@ -561,7 +562,7 @@ test("PUT /users/:id/password 400 (store_admin) - invalid password", async () =>
 });
 
 test("PUT /users/:id/password 401 (store_admin) - another user", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}/password`)
     .auth("b@b.com", "123456")
     .send({ password: "654321" });
@@ -569,21 +570,21 @@ test("PUT /users/:id/password 401 (store_admin) - another user", async () => {
 });
 
 test("PUT /users/:id/password 401 (store_admin) - invalid authentication method", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}/password`)
     .send({ access_token: session1, password: "654321" });
   expect(status).toBe(401);
 });
 
 test("PUT /users/:id/password 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}/password`)
     .send({ password: "654321" });
   expect(status).toBe(401);
 });
 
 test("PUT /users/:id/password 404 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .put("/123456789098765432123456/password")
     .auth("a@a.com", "123456")
     .send({ password: "654321" });
@@ -591,28 +592,29 @@ test("PUT /users/:id/password 404 (store_admin)", async () => {
 });
 
 test("DELETE /users/:id 204 (super_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .delete(`/${storeAdmin1.id}`)
     .send({ access_token: superAdminSession });
   expect(status).toBe(204);
 });
 
 test("DELETE /users/:id 401 (store_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .delete(`/${storeAdmin1.id}`)
     .send({ access_token: session1 });
   expect(status).toBe(401);
 });
 
 test("DELETE /users/:id 401", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .delete(`/${storeAdmin1.id}`);
   expect(status).toBe(401);
 });
 
 test("DELETE /users/:id 404 (super_admin)", async () => {
-  const { status } = await request(app())
+  const { status } = await request(app(), C.manageDomain)
     .delete("/123456789098765432123456")
     .send({ access_token: superAdminSession });
   expect(status).toBe(404);
 });
+

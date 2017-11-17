@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from "express";
 import { sign } from "../../services/jwt";
+import * as express from "express";
 import { success } from "../../services/response/";
+import config from "../../config";
+import { NextFunction } from "express";
 
 export const login = (
-  { user }: Request,
-  res: Response,
+  { user }: express.Request,
+  res: express.Response,
   next: NextFunction
  ) =>
   sign(user.id)

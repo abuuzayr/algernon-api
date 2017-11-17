@@ -1,8 +1,10 @@
-import { Request, Response, NextFunction } from "express";
 import * as _ from "lodash";
-import { MongoError } from "mongodb";
 import { success, notFound } from "../../services/response/";
 import { User } from "./model";
+import * as express from "express";
+import { MongoError } from "mongodb";
+import { Request, Response, NextFunction } from "express";
+
 
 export const index = (
   { querymen: { query, select, cursor } }: Request,
