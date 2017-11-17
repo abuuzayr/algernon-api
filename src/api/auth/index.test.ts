@@ -1,6 +1,7 @@
 import { stub } from "sinon";
 import * as request from "supertest";
-import { User, IUser } from "../user/model";
+import { User } from "../user/model";
+import { IUser } from "../user/interfaces";
 import { verify } from "../../services/jwt";
 import * as facebook from "../../services/facebook";
 import express from "../../services/express";
