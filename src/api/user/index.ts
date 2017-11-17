@@ -4,7 +4,6 @@ import { middleware as body } from "bodymen";
 import { password as passwordAuth, token } from "../../services/passport";
 import { index, showMe, show, create, update, updateMe, updatePassword, destroy } from "./controller";
 import v from "./validator";
-import { User } from "./model";
 
 const router = Router();
 

@@ -2,10 +2,8 @@ import * as crypto from "crypto";
 import * as bcrypt from "bcrypt";
 import * as randtoken from "rand-token";
 import { Schema, model } from "mongoose";
-import * as validate from "mongoose-validator";
 import * as mongooseKeywords from "mongoose-keywords";
-import config from "../../config";
-import { SalesChannel, salesChannelTypes } from "../sales-channel/model";
+import C from "../../config";
 import { IUserModel, IUser } from "./interfaces";
 
 const roles = ["store_admin", "super_admin", "customer"];
@@ -76,7 +74,7 @@ userSchema.pre("validate", function (next) {
 userSchema.pre("save", function (next) {
   if (!this.isModified("password")) return next();
 
-  const rounds = config.env === "test" ? 1 : 9;
+  const rounds = C.env === "test" ? 1 : 9;
 
   bcrypt.hash(this.password, rounds).then((hash) => {
     this.password = hash;
