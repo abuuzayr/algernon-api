@@ -5,7 +5,7 @@ import { success, notFound } from "../../services/response/";
 import { User } from "./model";
 
 export const index = (
-  { querymen: { query, select, cursor } }: Request,
+  { mongoose: { query: { query, select, cursor } } }: Request,
   res: Response,
   next: NextFunction
 ) =>
@@ -30,20 +30,20 @@ export const showMe = (
   res.json(user.view(true));
 
 export const create = (
-  { bodymen: { body } }: Request,
+  { mongoose: { body } }: Request,
   res: Response,
   next: NextFunction
 ) => {
   const u = new User(body);
-  u.save()
+  return u.save()
     .then((user) => user.view(true))
     .then(success(res, 201))
-    .catch((err: MongoError) => {
-      if (err.name === "MongoError" && err.code === 11000) {
+    .catch((err: MongoError | Error) => {
+      if (err.name === "MongoError" && (<MongoError>err).code === 11000) {
         res.status(409).json({
-          valid: false,
-          param: "email",
-          message: "email already registered"
+          errors: {
+            email: "email already registered",
+          }
         });
       } else {
         next(err);
@@ -52,7 +52,7 @@ export const create = (
 };
 
 export const updateMe = (
-  { bodymen: { body }, user }: Request,
+  { mongoose: { body } , user }: Request,
   res: Response,
   next: NextFunction
 ) =>
@@ -75,7 +75,7 @@ export const updateMe = (
     .catch(next);
 
 export const update = (
-  { bodymen: { body }, params, user }: Request,
+  { mongoose: { body }, params, user }: Request,
   res: Response,
   next: NextFunction) =>
   User.findById(params.id)
@@ -86,7 +86,7 @@ export const update = (
     .catch(next);
 
 export const updatePassword = (
-  { bodymen: { body }, params, user }: Request,
+  { mongoose: { body }, params, user }: Request,
   res: Response,
   next: NextFunction
 ) =>

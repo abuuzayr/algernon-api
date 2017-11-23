@@ -8,14 +8,10 @@ import * as express from "express";
 
 declare module "express" {
   interface Request {
-    bodymen: {
-      body: any,
-    },
-    querymen: {
-      query: any,
-      select: any,
-      cursor: any,
-    },
     domain: string,
+    mongoose: {
+      query?: any,
+      body?: any,
+    },
   }
 }

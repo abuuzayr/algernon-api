@@ -1,12 +1,16 @@
 import * as crypto from "crypto";
 import { User } from "./model";
 import { SalesChannel } from "../sales-channel/model";
+import { IUser } from "./interfaces";
 
-let user;
+let user: IUser;
 
 beforeEach(async () => {
   user = await User.create({
-    name: "user",
+    profile: {
+      firstName: "store",
+      lastName: "admin",
+    },
     email: "a@a.com",
     password: "123456",
     role: "store_admin"
@@ -14,27 +18,21 @@ beforeEach(async () => {
 });
 
 describe("set email", () => {
-  it("sets name automatically", () => {
-    user.name = "";
-    user.email = "test@example.com";
-    expect(user.name).toBe("test");
-  });
-
   it("sets picture automatically", () => {
     const hash = crypto.createHash("md5").update(user.email).digest("hex");
-    expect(user.picture).toBe(`https://gravatar.com/avatar/${hash}?d=identicon`);
+    expect(user.profile.picture).toBe(`https://gravatar.com/avatar/${hash}?d=identicon`);
   });
 
   it("changes picture when it is gravatar", () => {
     user.email = "b@b.com";
     const hash = crypto.createHash("md5").update(user.email).digest("hex");
-    expect(user.picture).toBe(`https://gravatar.com/avatar/${hash}?d=identicon`);
+    expect(user.profile.picture).toBe(`https://gravatar.com/avatar/${hash}?d=identicon`);
   });
 
   it("does not change picture when it is already set and is not gravatar", () => {
-    user.picture = "not_gravatar.jpg";
+    user.profile.picture = "not_gravatar.jpg";
     user.email = "c@c.com";
-    expect(user.picture).toBe("not_gravatar.jpg");
+    expect(user.profile.picture).toBe("not_gravatar.jpg");
   });
 });
 
@@ -43,9 +41,11 @@ describe("view", () => {
     const view = user.view();
     expect(view).toBeDefined();
     expect(view.id).toBe(user.id);
-    expect(view.name).toBe(user.name);
     expect(view.email).toBe(user.email);
-    expect(view.picture).toBe(user.picture);
+    expect(typeof view.profile).toBe("object");
+    expect(view.profile.firstName).toBe(user.profile.firstName);
+    expect(view.profile.lastName).toBe(user.profile.lastName);
+    expect(view.profile.picture).toBe(user.profile.picture);
     expect(view.createdAt).toEqual(user.createdAt);
   });
 
@@ -53,9 +53,11 @@ describe("view", () => {
     const view = user.view(true);
     expect(view).toBeDefined();
     expect(view.id).toBe(user.id);
-    expect(view.name).toBe(user.name);
     expect(view.email).toBe(user.email);
-    expect(view.picture).toBe(user.picture);
+    expect(typeof view.profile).toBe("object");
+    expect(view.profile.firstName).toBe(user.profile.firstName);
+    expect(view.profile.lastName).toBe(user.profile.lastName);
+    expect(view.profile.picture).toBe(user.profile.picture);
     expect(view.createdAt).toEqual(user.createdAt);
   });
 });
@@ -77,10 +79,13 @@ describe("createFromService", () => {
 
   beforeAll(async () => {
     storeAdmin = await new User({
-      name: "Store Admin",
       email: "store_admin@example.com",
       password: "password123",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "store",
+        lastName: "admin",
+      },
     }).save();
 
     salesChannel = await new SalesChannel({
@@ -92,56 +97,59 @@ describe("createFromService", () => {
 
   beforeEach(() => {
     serviceUser = {
-      id: "123",
-      name: "Test Name",
       email: "test@test.com",
-      picture: "test.jpg",
-      domain: "test.example.com",
+      profile: {
+        firstName: "Customer",
+        lastName: "1",
+        picture: "test.jpg",
+      },
       salesChannel: salesChannel,
+      services: {},
     };
   });
 
     ["facebook"].forEach((service) => {
       describe(service, () => {
         beforeEach(() => {
-          serviceUser.service = service;
+          serviceUser.services[service] = "123";
         });
 
         it("updates user when email is already registered", async () => {
+          const createdUser = await (new User(serviceUser)).save();
           const updatedUser = await User.createFromService(
-            service,
-            { ...serviceUser, email: "a@a.com" }
+            { ...serviceUser, email: "test@test.com" }
           );
           // keep
-          expect(updatedUser.id).toBe(user.id);
-          expect(updatedUser.email).toBe(user.email);
+          expect(updatedUser.id).toBe(createdUser.id);
+          expect(updatedUser.email).toBe(createdUser.email);
           // update
-          expect(updatedUser.name).toBe(serviceUser.name);
-          expect(updatedUser.services[service]).toBe(serviceUser.id);
-          expect(updatedUser.picture).toBe(serviceUser.picture);
+          expect(updatedUser.profile.firstName).toBe(createdUser.profile.firstName);
+          expect(updatedUser.profile.lastName).toBe(createdUser.profile.lastName);
+          expect(updatedUser.services[service]).toBe(createdUser.services[service]);
+          expect(updatedUser.profile.picture).toBe(createdUser.profile.picture);
         });
 
         it("updates user when service id is already registered", async () => {
           await user.set({ services: { [service]: serviceUser.id } }).save();
-          const updatedUser = await User.createFromService(
-            service, serviceUser
-          );
+          const updatedUser = await User.createFromService(serviceUser);
           // keep
           expect(updatedUser.id).toBe(user.id);
           expect(updatedUser.email).toBe(user.email);
           // update
-          expect(updatedUser.name).toBe(serviceUser.name);
-          expect(updatedUser.services[service]).toBe(serviceUser.id);
-          expect(updatedUser.picture).toBe(serviceUser.picture);
+          expect(updatedUser.profile.firstName).toBe(serviceUser.profile.firstName);
+          expect(updatedUser.profile.lastName).toBe(serviceUser.profile.lastName);
+          expect(updatedUser.services[service]).toBe(serviceUser.services[service];
+          expect(updatedUser.profile.picture).toBe(serviceUser.profile.picture);
         });
 
         it("creates a new user when neither service id and email was found", async () => {
-          const createdUser = await User.createFromService(service, serviceUser);
+          const createdUser = await User.createFromService(serviceUser);
           expect(createdUser.id).not.toBe(user.id);
           expect(createdUser.services[service]).toBe(serviceUser.id);
-          expect(createdUser.name).toBe(serviceUser.name);
+          expect(createdUser.profile.firstName).toBe(serviceUser.profile.firstName);
+          expect(createdUser.profile.lastName).toBe(serviceUser.profile.lastName);
           expect(createdUser.email).toBe(serviceUser.email);
-          expect(createdUser.picture).toBe(serviceUser.picture);
+          expect(createdUser.profile.picture).toBe(serviceUser.profile.picture);
         });
       });
     });

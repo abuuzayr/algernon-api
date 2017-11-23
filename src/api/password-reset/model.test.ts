@@ -7,7 +7,11 @@ beforeEach(async () => {
   const user = await User.create({
     email: "a@a.com",
     password: "123456",
-    role: "store_admin"
+    role: "store_admin",
+    profile: {
+      firstName: "Store",
+      lastName: "Admin",
+    }
   });
   passwordReset = await PasswordReset.create({ user });
 });

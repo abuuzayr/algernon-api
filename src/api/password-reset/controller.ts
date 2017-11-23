@@ -3,13 +3,14 @@ import { success, notFound } from "../../services/response/";
 import { sendMail } from "../../services/sendgrid";
 import { PasswordReset } from "./model";
 import { User } from "../user/model";
+import { validateCreate } from "./validator";
 
 export const create = (
-  { bodymen: { body: { email, link } } }: Request,
+  { mongoose: { body: { email, link } } }: Request,
   res: Response,
   next: NextFunction
 ) => {
-  User.findOne({ email })
+  return User.findOne({ email: email })
     .then(notFound(res))
     .then((user) => user ? PasswordReset.create({ user }) : undefined)
     .then((reset) => {
@@ -17,7 +18,7 @@ export const create = (
       const { user, token } = reset;
       link = `${link.replace(/\/$/, "")}/${token}`;
       const content = `
-        Hey, ${user.name}.<br><br>
+        Hey, ${user.profile.firstName}.<br><br>
         You requested a new password for your api account.<br>
         Please use the following link to set a new password. It will expire in 1 hour.<br><br>
         <a href="${link}">${link}</a><br><br>
@@ -28,9 +29,10 @@ export const create = (
     })
     .then((response: any) => response ? res.status(response.statusCode).end() : undefined)
     .catch(next);
-  };
+};
+
 export const show = (
-  { params: { token } }: { params: { token: string } },
+  { params: { token } }: Request,
   res: Response,
   next: NextFunction
 ) =>
@@ -42,7 +44,7 @@ export const show = (
     .catch(next);
 
 export const update = (
-  { params: { token }, bodymen: { body: { password } } }: Request,
+  { params: { token }, mongoose: { body: { password } } }: Request,
   res: Response,
   next: NextFunction
 ) => {

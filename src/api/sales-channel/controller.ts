@@ -4,7 +4,7 @@ import { SalesChannel } from "./model";
 import { Request, Response, NextFunction } from "express";
 
 export const create = (
-  { bodymen: { body }, user }: Request,
+  { mongoose: { body }, user }: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -23,7 +23,7 @@ export const create = (
 };
 
 export const index = (
-  { querymen: { query, select, cursor }, user }: Request,
+  { mongoose: { query: { query, select, cursor } }, user }: Request,
   res: Response,
   next: NextFunction
 ) =>
@@ -57,7 +57,7 @@ export const show = (
     .catch(next);
 
 export const update = (
-  { bodymen: { body }, params, user }: Request,
+  { mongoose: { body }, params, user }: Request,
   res: Response,
   next: NextFunction
 ) =>

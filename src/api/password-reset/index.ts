@@ -1,20 +1,23 @@
 import { Router } from "express";
-import { middleware as body } from "bodymen";
 import { create, show, update } from "./controller";
-import validator from "../user/validator";
+import { transformBody, transformQuery } from "../../services/mongoose/transform/request";
+import { validateRequest } from "./validator";
 
 const router = Router();
-const { email, password } = validator.create;
 
 router.post("/",
-  body({ email, link: { type: String, required: true } }),
+  validateRequest("POST /"),
+  transformBody(),
   create);
 
 router.get("/:token",
+  transformQuery(),
   show);
 
+// Middleware is not created. why!
 router.put("/:token",
-  body({ password }),
+  validateRequest("PUT /:token"),
+  transformBody(),
   update);
 
 export default router;

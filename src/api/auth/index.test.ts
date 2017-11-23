@@ -14,6 +14,10 @@ let user: IUser;
 
 beforeEach(async () => {
   user = await User.create({
+    profile: {
+      firstName: "Store",
+      lastName: "Admin",
+    },
     email: "a@a.com",
     password: "123456",
     role: "store_admin"
@@ -38,7 +42,8 @@ test("POST /auth 400 - invalid email", async () => {
     .auth("invalid", "123456");
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("email");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("email");
 });
 
 test("POST /auth 400 - invalid password", async () => {
@@ -47,7 +52,8 @@ test("POST /auth 400 - invalid password", async () => {
     .auth("a@a.com", "123");
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("password");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("password");
 });
 
 test("POST /auth 401 - user does not exist", async () => {

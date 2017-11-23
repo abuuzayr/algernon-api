@@ -1,47 +1,48 @@
 import { Router } from "express";
-import { middleware as query } from "querymen";
-import { middleware as body } from "bodymen";
 import { password as passwordAuth, token } from "../../services/passport";
 import { index, showMe, show, create, update, updateMe, updatePassword, destroy } from "./controller";
-import v from "./validator";
+import { transformQuery, transformBody } from "../../services/mongoose/transform/request";
 
 const router = Router();
 
 router.get("/",
   token({ required: true, roles: ["super_admin"] }),
-  query(),
+  transformQuery(),
   index);
 
 router.get("/me",
   token({ required: true, roles: ["super_admin", "store_admin"] }),
+  transformQuery(),
   showMe);
 
 router.get("/:id",
   token({ required: true, roles: ["super_admin"] }),
+  transformQuery(),
   show);
 
 router.post("/",
   token({ required: true, roles: ["super_admin"] }),
-  body(v.create),
+  transformBody(),
   create);
 
 router.put("/me",
   token({ required: true, roles: ["super_admin", "store_admin"] }),
-  body(v.updateMe),
+  transformBody(),
   updateMe);
 
 router.put("/:id",
   token({ required: true, roles: ["super_admin"] }),
-  body(v.update),
+  transformBody(),
   update);
 
 router.put("/:id/password",
   passwordAuth(),
-  body(v.updatePassword),
+  transformBody(),
   updatePassword);
 
 router.delete("/:id",
   token({ required: true, roles: ["super_admin"] }),
+  transformBody(),
   destroy);
 
 export default router;

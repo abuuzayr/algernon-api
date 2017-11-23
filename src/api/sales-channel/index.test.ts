@@ -17,9 +17,33 @@ let userSession,
   salesChannel;
 
 beforeEach(async () => {
-  const user = await User.create({ email: "a@a.com", name: "store_admin1", password: "123456", role: "store_admin" });
-  const user2 = await User.create({ email: "b@b.com", name: "store_admin2", password: "123456", role: "store_admin" });
-  const admin = await User.create({ email: "c@c.com", name: "super_admin", password: "123456", role: "super_admin" });
+  const user = await User.create({
+    email: "a@a.com",
+    profile: {
+      firstName: "Store",
+      lastName: "Admin",
+    },
+    password: "123456",
+    role: "store_admin",
+  });
+  const user2 = await User.create({
+    email: "b@b.com",
+    profile: {
+      firstName: "Store",
+      lastName: "Admin 2",
+    },
+    password: "123456",
+    role: "store_admin",
+  });
+  const admin = await User.create({
+    email: "c@c.com",
+    profile: {
+      firstName: "Super",
+      lastName: "Admin",
+    },
+    password: "123456",
+    role: "super_admin",
+  });
   userId = user.id;
   user2Id = user2.id;
   userSession = signSync(userId);
@@ -38,7 +62,7 @@ beforeEach(async () => {
 test("POST /sales-channels 201 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommerce";
-  const { status, body } = await request(app(), C.manageDomain)
+  const { body, status} = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: adminSession,
@@ -415,10 +439,10 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
 });
 
 // Cannot modify saleschannel by id as a super_admin (invalid sctype)
-test("PUT /sales-channels/:id 400 (super_admin)", async () => {
+test("PUT /sales-channels/:id 401 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommercess";
-  const { status } = await request(app(), C.manageDomain)
+  const { status, body } = await request(app(), C.manageDomain)
     .put(`/${salesChannel.id}`)
     .send({
       access_token: adminSession,
@@ -432,7 +456,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
       facebook: "test",
       sendGrid: "test"
     });
-  expect(status).toBe(400);
+  expect(status).toBe(401);
 });
 
 // TODO: to test to modify the sctype fields. Not testable
@@ -440,7 +464,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
 
 // Cannot modify saleschannel by id as a super_admin
 // (invalid sctype)
-test("PUT /sales-channels/:id 400 (super_admin)", async () => {
+test("PUT /sales-channels/:id 401 (super_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommercesss";
   const { status } = await request(app(), C.manageDomain)
@@ -457,7 +481,7 @@ test("PUT /sales-channels/:id 400 (super_admin)", async () => {
       facebook: "test",
       sendGrid: "test"
     });
-  expect(status).toBe(400);
+  expect(status).toBe(401);
 });
 
 // Cannot modify saleschannel by id as a super_admin (invalid owner)
@@ -537,7 +561,7 @@ test("PUT /sales-channels/:id 200 (store_admin)", async () => {
 
 // Cannot modify saleschannel by id as a store_admin
 // (invalid sctype)
-test("PUT /sales-channels/:id 400 (store_admin)", async () => {
+test("PUT /sales-channels/:id 401 (store_admin)", async () => {
   const scdomain = "test.example.com";
   const sctype = "ecommercess";
   const { status } = await request(app(), C.manageDomain)
@@ -554,7 +578,7 @@ test("PUT /sales-channels/:id 400 (store_admin)", async () => {
       facebook: "test",
       sendGrid: "test"
     });
-  expect(status).toBe(400);
+  expect(status).toBe(401);
 });
 
 // Cannot modify saleschannel by id as a store_admin

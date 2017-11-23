@@ -11,18 +11,28 @@ let storeAdmin1, storeAdmin2, superAdmin, session1, superAdminSession;
 
 beforeEach(async () => {
   storeAdmin1 = await User.create({
-    name: "store_admin",
+    profile: {
+      firstName: "Store",
+      lastName: "Admin",
+    },
     email: "a@a.com",
     password: "123456",
     role: "store_admin"
   });
   storeAdmin2 = await User.create({
-    name: "store_admin2",
+    profile: {
+      firstName: "Store",
+      lastName: "Admin 2",
+    },
     email: "b@b.com",
     password: "123456",
     role: "store_admin"
   });
   superAdmin = await User.create({
+    profile: {
+      firstName: "Super",
+      lastName: "Admin 2",
+    },
     email: "c@c.com",
     password: "123456",
     role: "super_admin"
@@ -31,16 +41,22 @@ beforeEach(async () => {
   session1 = signSync(storeAdmin1.id);
   superAdminSession = signSync(superAdmin.id);
 });
+
 // super_admin can create store_admins
 test("POST /users 201 (super_admin)", async () => {
-  const { status, body } = await request(app(), C.manageDomain)
+  const x = await request(app(), C.manageDomain)
     .post("/")
     .send({
       access_token: superAdminSession,
       email: "d@d.com",
       password: "123456",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
+  const { status, body } = x;
   expect(status).toBe(201);
   expect(typeof body).toBe("object");
   expect(body.email).toBe("d@d.com");
@@ -54,13 +70,16 @@ test("POST /users 201 (super_admin)", async () => {
       access_token: superAdminSession,
       email: "d@d.com",
       password: "123456",
-      role: "super_admin"
+      role: "super_admin",
+      profile: {
+        firstName: "Super",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(201);
   expect(typeof body).toBe("object");
   expect(body.email).toBe("d@d.com");
 });
-
 // super_admin attempts creating account with duplicated email
 test("POST /users 409 (super_admin) - duplicated email", async () => {
   const { status, body } = await request(app(), C.manageDomain)
@@ -69,11 +88,16 @@ test("POST /users 409 (super_admin) - duplicated email", async () => {
       access_token: superAdminSession,
       email: "a@a.com",
       password: "123456",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(409);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("email");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("email");
 });
 
 // super_admin attempts creating account with invalid email
@@ -84,11 +108,16 @@ test("POST /users 400 (super_admin) - invalid email", async () => {
       access_token: superAdminSession,
       email: "invalid",
       password: "123456",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("email");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("email");
 });
 
 // super_admin attempts creating account with missing email
@@ -98,11 +127,16 @@ test("POST /users 400 (super_admin) - missing email", async () => {
     .send({
       access_token: superAdminSession,
       password: "123456",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("email");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("email");
 });
 
 // super_admin attempts creating account with invalid_password
@@ -113,11 +147,16 @@ test("POST /users 400 (super_admin) - invalid password", async () => {
       access_token: superAdminSession,
       email: "d@d.com",
       password: "123",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("password");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("password");
 });
 
 // super_admin attempts creating account with missing_password
@@ -127,11 +166,16 @@ test("POST /users 400 (super_admin) - missing password", async () => {
     .send({
       access_token: superAdminSession,
       email: "d@d.com",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("password");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("password");
 });
 
 // super_admin attempts creating account with invalid role
@@ -142,11 +186,32 @@ test("POST /users 400 (super_admin) - invalid role", async () => {
       access_token: superAdminSession,
       email: "d@d.com",
       password: "123456",
-      role: "invalid"
+      role: "invalid",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("role");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("role");
+});
+
+// super_admin attempts creating account with no profile
+test("POST /users 400 (super_admin) - no profile", async () => {
+  const { status, body } = await request(app(), C.manageDomain)
+    .post("/")
+    .send({
+      access_token: superAdminSession,
+      role: "store_admin",
+      email: "d@d.com",
+      password: "123456",
+    });
+  expect(status).toBe(400);
+  expect(typeof body).toBe("object");
+  expect(typeof body.errors).toBe("object");
+  // TODO: Test no profile.
 });
 
 // store_admin cannot create store_admin
@@ -157,7 +222,11 @@ test("POST /users 401 (store_admin)", async () => {
       access_token: session1,
       email: "d@d.com",
       password: "123456",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(401);
 });
@@ -170,7 +239,11 @@ test("POST /users 401 (store_admin)", async () => {
       access_token: session1,
       email: "d@d.com",
       password: "123456",
-      role: "super_admin"
+      role: "super_admin",
+      profile: {
+        firstName: "Super",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(401);
 });
@@ -182,7 +255,11 @@ test("POST /users 401 (public)", async () => {
     .send({
       email: "d@d.com",
       password: "123456",
-      role: "super_admin"
+      role: "super_admin",
+      profile: {
+        firstName: "Super",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(401);
 });
@@ -194,7 +271,11 @@ test("POST /users 401 (public)", async () => {
     .send({
       email: "d@d.com",
       password: "123456",
-      role: "store_admin"
+      role: "store_admin",
+      profile: {
+        firstName: "Store",
+        lastName: "Admin 3",
+      }
     });
   expect(status).toBe(401);
 });
@@ -222,7 +303,7 @@ test("GET /users?page=2&limit=1 200 (super_admin)", async () => {
 test("GET /users?q=store_admin 200 (super_admin)", async () => {
   const { status, body } = await request(app(), C.manageDomain)
     .get("/")
-    .query({ access_token: superAdminSession, q: "store_admin" });
+    .query({ access_token: superAdminSession, q: "Store" });
   expect(status).toBe(200);
   expect(Array.isArray(body)).toBe(true);
   expect(body.length).toBe(2);
@@ -232,10 +313,11 @@ test("GET /users?q=store_admin 200 (super_admin)", async () => {
 test("GET /users?fields=name 200 (super_admin)", async () => {
   const { status, body } = await request(app(), C.manageDomain)
     .get("/")
-    .query({ access_token: superAdminSession, fields: "name" });
+    .query({ access_token: superAdminSession, fields: "profile.firstName,profile.lastName" });
   expect(status).toBe(200);
   expect(Array.isArray(body)).toBe(true);
-  expect(Object.keys(body[0])).toEqual(["id", "name"]);
+  expect(Object.keys(body[0])).toEqual(["id", "profile"]);
+  expect(Object.keys(body[0].profile).sort()).toEqual(["firstName", "lastName"]);
 });
 
 // store_admin cannot see all users
@@ -400,34 +482,50 @@ test("GET /users/:id 404", async () => {
     .query({ access_token: superAdminSession });
   expect(status).toBe(404);
 });
+
 // I can change my name as super_admin
 test("PUT /users/me 200 (super_admin)", async () => {
   const { status, body } = await request(app(), C.manageDomain)
     .put("/me")
-    .send({ access_token: superAdminSession, name: "super_admin" });
+    .send({
+      access_token: superAdminSession,
+      profile: {
+        firstName: "Super!",
+        lastName: "Admin!",
+      }
+    });
   expect(status).toBe(200);
   expect(typeof body).toBe("object");
-  expect(body.name).toBe("super_admin");
+  expect(body.profile.firstName).toBe("Super!");
+  expect(body.profile.lastName).toBe("Admin!");
 });
 
 // I can change my email as super_admin
 test("PUT /users/me 200 (super_admin)", async () => {
   const { status, body } = await request(app(), C.manageDomain)
     .put("/me")
-    .send({ access_token: superAdminSession, email: "super_admin@example.com" });
+    .send({ access_token: superAdminSession, email: "super_admin1@example.com" });
   expect(status).toBe(200);
   expect(typeof body).toBe("object");
-  expect(body.email).toBe("super_admin@example.com");
+  expect(body.email).toBe("super_admin1@example.com");
 });
 
 // I can change my name as store_admin
 test("PUT /users/me 200 (store_admin)", async () => {
   const { status, body } = await request(app(), C.manageDomain)
     .put("/me")
-    .send({ access_token: session1, name: "store_admin" });
+    .send({
+      access_token: session1,
+      profile: {
+        firstName: "Store123",
+        lastName: "Admin123",
+      }
+    });
   expect(status).toBe(200);
   expect(typeof body).toBe("object");
-  expect(body.name).toBe("store_admin");
+  expect(typeof body.profile).toBe("object");
+  expect(body.profile.firstName).toBe("Store123");
+  expect(body.profile.lastName).toBe("Admin123");
 });
 
 // I can change my email as store_admin
@@ -452,20 +550,36 @@ test("PUT /users/me 401", async () => {
 test("PUT /users/:id 200 (super_admin)", async () => {
   const { status, body } = await request(app(), C.manageDomain)
     .put(`/${superAdmin.id}`)
-    .send({ access_token: superAdminSession, name: "super_admin1" });
+    .send({
+      access_token: superAdminSession,
+      profile: {
+        firstName: "Super123",
+        lastName: "Admin123",
+      }
+    });
   expect(status).toBe(200);
   expect(typeof body).toBe("object");
-  expect(body.name).toBe("super_admin1");
+  expect(typeof body.profile).toBe("object");
+  expect(body.profile.firstName).toBe("Super123");
+  expect(body.profile.lastName).toBe("Admin123");
 });
 
 // I can change a store_admin as super_admin
 test("PUT /users/:id 200 (super_admin)", async () => {
   const { status, body } = await request(app(), C.manageDomain)
     .put(`/${storeAdmin1.id}`)
-    .send({ access_token: superAdminSession, name: "store_admin1" });
+    .send({
+      access_token: superAdminSession,
+      profile: {
+        firstName: "Store321",
+        lastName: "Admin321",
+      }
+    });
   expect(status).toBe(200);
   expect(typeof body).toBe("object");
-  expect(body.name).toBe("store_admin1");
+  expect(typeof body.profile).toBe("object");
+  expect(body.profile.firstName).toBe("Store321");
+  expect(body.profile.lastName).toBe("Admin321");
 });
 
 // I cannot change anything as store_admin
@@ -523,7 +637,8 @@ test("PUT /users/me/password 400 (store_admin) - invalid password", async () => 
     .send({ password: "321" });
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("password");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("password");
 });
 
 test("PUT /users/me/password 401 (store_admin) - invalid authentication method", async () => {
@@ -558,7 +673,8 @@ test("PUT /users/:id/password 400 (store_admin) - invalid password", async () =>
     .send({ password: "321" });
   expect(status).toBe(400);
   expect(typeof body).toBe("object");
-  expect(body.param).toBe("password");
+  expect(typeof body.errors).toBe("object");
+  expect(body.errors).toHaveProperty("password");
 });
 
 test("PUT /users/:id/password 401 (store_admin) - another user", async () => {
@@ -617,4 +733,3 @@ test("DELETE /users/:id 404 (super_admin)", async () => {
     .send({ access_token: superAdminSession });
   expect(status).toBe(404);
 });
-

@@ -4,10 +4,8 @@ import * as cors from "cors";
 import * as compression from "compression";
 import * as morgan from "morgan";
 import * as bodyParser from "body-parser";
-import { errorHandler as queryErrorHandler } from "querymen";
-import { errorHandler as bodyErrorHandler } from "bodymen";
 import { jsonifyErrors } from "./jsonify-errors";
-import { domainTools } from "./domain-tools";
+import { domainFilter } from "./domain-filter";
 import C from "../../config";
 
 export default (routes: express.Router) => {
@@ -30,9 +28,7 @@ export default (routes: express.Router) => {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(routes);
-  app.use(queryErrorHandler());
-  app.use(bodyErrorHandler());
   app.use(jsonifyErrors());
-  app.use(domainTools());
+  app.use(domainFilter());
   return app;
 };

@@ -5,6 +5,10 @@ let salesChannel, user;
 
 beforeEach(async () => {
   user = await User.create({
+    profile: {
+      firstName: "Store",
+      lastName: "Admin",
+    },
     email: "store_admin@example.com",
     role: "store_admin",
     password: "123456"

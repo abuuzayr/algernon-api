@@ -30,7 +30,11 @@ if (C.env === "development") {
         user = new User({
           email: adminEmail,
           password: "adminadmin",
-          role: "super_admin"
+          role: "super_admin",
+          profile: {
+            firstName: "Super",
+            lastName: "Admin",
+          }
         });
         return user.save();
       }),
@@ -40,7 +44,11 @@ if (C.env === "development") {
         user = new User({
           email: storeAdmin1Email,
           password: "adminadmin",
-          role: "store_admin"
+          role: "store_admin",
+          profile: {
+            firstName: "Store",
+            lastName: "Admin1",
+          }
         });
 
         return user.save();
@@ -51,7 +59,11 @@ if (C.env === "development") {
         user = new User({
           email: storeAdmin2Email,
           password: "adminadmin",
-          role: "store_admin"
+          role: "store_admin",
+          profile: {
+            firstName: "Store",
+            lastName: "Admin2",
+          }
         });
         return user.save();
       })
