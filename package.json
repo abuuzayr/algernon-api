@@ -93,7 +93,7 @@
     "mockgoose": "^7.3.3",
     "nock": "^9.1.0",
     "nodemon": "^1.12.1",
-    "shelljs": "^0.7.8",
+    "shelljs": "^0.8.5",
     "sinon": "^4.1.2",
     "supertest": "Hellyna/supertest.git#3.0.0-domain-support",
     "ts-jest": "^21.2.2",
